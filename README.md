@@ -19,7 +19,7 @@ The app uses `VITE_API_URL` for its API base URL:
 
 - Default (if you do nothing): `/api`
 
-To override it, create a file named `.env` in this `pitambari/` folder:
+To override it, create a file named `.env` in this project directory:
 
 ```bash
 VITE_API_URL=http://localhost:3000/api
