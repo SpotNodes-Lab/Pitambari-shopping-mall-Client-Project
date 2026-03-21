@@ -1,153 +1,262 @@
 import { Link } from "react-router-dom"
 import { Globe, Share2, Mail } from "lucide-react"
+import styled from "styled-components"
+
+const FooterRoot = styled.footer`
+  background-color: var(--color-surface-container-low);
+  width: 100%;
+  padding-top: 5rem;
+  padding-bottom: 2.5rem;
+`
+
+const FooterGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.7;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+`
+
+const Column = styled.div`
+  opacity: 0.9;
+  transition: opacity 200ms ease;
+
+  &:hover {
+    opacity: 1;
+  }
+`
+
+const BrandTitle = styled.span`
+  font-family: var(--font-headline);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-on-surface);
+  margin-bottom: 1rem;
+  display: block;
+  letter-spacing: -0.02em;
+`
+
+const Paragraph = styled.p`
+  color: color-mix(in srgb, var(--color-on-surface) 70%, transparent);
+  margin-bottom: 1.5rem;
+`
+
+const SocialRow = styled.div`
+  display: flex;
+  gap: 1rem;
+`
+
+const SocialButton = styled.button`
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-primary);
+  transition: color 200ms ease;
+
+  &:hover {
+    color: var(--color-primary-container);
+  }
+`
+
+const ColumnTitle = styled.h4`
+  font-family: var(--font-headline);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-primary);
+`
+
+const LinkList = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+`
+
+const FooterLink = styled(Link)`
+  color: color-mix(in srgb, var(--color-on-surface) 70%, transparent);
+  text-decoration: none;
+  transition: color 200ms ease, text-decoration-color 200ms ease;
+
+  &:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+`
+
+const NewsletterForm = styled.form`
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid color-mix(
+    in srgb,
+    var(--color-on-surface) 20%,
+    transparent
+  );
+  padding-bottom: 0.5rem;
+  transition: border-color 200ms ease;
+
+  &:focus-within {
+    border-bottom-color: var(--color-primary);
+  }
+`
+
+const NewsletterInput = styled.input`
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+
+  color: var(--color-on-surface);
+  font-size: 0.75rem;
+  font-style: italic;
+
+  &::placeholder {
+    color: color-mix(in srgb, var(--color-on-surface) 50%, transparent);
+  }
+`
+
+const NewsletterButton = styled.button`
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  color: var(--color-primary);
+  font-family: var(--font-headline);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  transition: color 200ms ease;
+
+  &:hover {
+    color: var(--color-primary-container);
+  }
+`
+
+const FooterBottom = styled.div`
+  margin-top: 5rem;
+  border-top: 1px solid color-mix(
+    in srgb,
+    var(--color-on-surface) 5%,
+    transparent
+  );
+  padding-top: 2.5rem;
+  text-align: center;
+
+  color: color-mix(in srgb, var(--color-on-surface) 50%, transparent);
+  font-size: 0.75rem;
+`
 
 export function Footer() {
   return (
-    <footer className="bg-surface-container-low w-full pt-20 pb-10">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-6 md:px-12 max-w-7xl mx-auto font-body text-sm leading-relaxed">
+    <FooterRoot>
+      <FooterGrid>
         {/* Brand Column */}
-        <div className="opacity-90 hover:opacity-100 transition-opacity">
-          <span className="text-xl font-bold text-on-surface mb-4 block tracking-tighter font-headline">
-            Digital Atelier
-          </span>
-          <p className="text-on-surface/70 mb-6">
+        <Column>
+          <BrandTitle>Digital Atelier</BrandTitle>
+          <Paragraph>
             Redefining luxury through tradition. Every stitch tells a story of
             heritage, reimagined for the contemporary soul.
-          </p>
-          <div className="flex gap-4">
-            <button
-              className="text-primary hover:text-primary-container transition-colors"
-              aria-label="Website"
-            >
+          </Paragraph>
+          <SocialRow>
+            <SocialButton aria-label="Website">
               <Globe size={20} strokeWidth={1.5} />
-            </button>
-            <button
-              className="text-primary hover:text-primary-container transition-colors"
-              aria-label="Share"
-            >
+            </SocialButton>
+            <SocialButton aria-label="Share">
               <Share2 size={20} strokeWidth={1.5} />
-            </button>
-            <button
-              className="text-primary hover:text-primary-container transition-colors"
-              aria-label="Email"
-            >
+            </SocialButton>
+            <SocialButton aria-label="Email">
               <Mail size={20} strokeWidth={1.5} />
-            </button>
-          </div>
-        </div>
+            </SocialButton>
+          </SocialRow>
+        </Column>
 
         {/* About Us */}
-        <div className="opacity-90 hover:opacity-100 transition-opacity">
-          <h4 className="font-semibold text-primary mb-6 uppercase tracking-widest font-headline">
-            About Us
-          </h4>
-          <ul className="space-y-4">
+        <Column>
+          <ColumnTitle>Explore</ColumnTitle>
+          <LinkList>
             <li>
-              <Link
-                to="/sustainability"
-                className="text-on-surface/70 hover:text-primary underline-offset-4 hover:underline transition-all"
+              <FooterLink
+                to="/about"
               >
-                Sustainability
-              </Link>
+                About us
+              </FooterLink>
             </li>
             <li>
-              <Link
-                to="/heritage"
-                className="text-on-surface/70 hover:text-primary underline-offset-4 hover:underline transition-all"
+              <FooterLink
+                to="/gallery"
               >
-                Our Heritage
-              </Link>
+                Gallery
+              </FooterLink>
             </li>
-            <li>
-              <Link
-                to="/contact"
-                className="text-on-surface/70 hover:text-primary underline-offset-4 hover:underline transition-all"
-              >
-                Contact Us
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/stores"
-                className="text-on-surface/70 hover:text-primary underline-offset-4 hover:underline transition-all"
-              >
-                Store Locator
-              </Link>
-            </li>
-          </ul>
-        </div>
+          </LinkList>
+        </Column>
 
-        {/* Customer Care */}
-        <div className="opacity-90 hover:opacity-100 transition-opacity">
-          <h4 className="font-semibold text-primary mb-6 uppercase tracking-widest font-headline">
-            Customer Care
-          </h4>
-          <ul className="space-y-4">
+        {/* Showrooms / Contact */}
+        <Column>
+          <ColumnTitle>Showrooms</ColumnTitle>
+          <LinkList>
             <li>
-              <Link
-                to="/shipping"
-                className="text-on-surface/70 hover:text-primary underline-offset-4 hover:underline transition-all"
+              <FooterLink
+                to="/showrooms"
               >
-                Shipping &amp; Returns
-              </Link>
+                View showrooms
+              </FooterLink>
             </li>
             <li>
-              <Link
-                to="/privacy"
-                className="text-on-surface/70 hover:text-primary underline-offset-4 hover:underline transition-all"
+              <FooterLink
+                to="/contact"
               >
-                Privacy Policy
-              </Link>
+                Contact form
+              </FooterLink>
             </li>
-            <li>
-              <Link
-                to="/care"
-                className="text-on-surface/70 hover:text-primary underline-offset-4 hover:underline transition-all"
-              >
-                Care Instructions
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/track"
-                className="text-on-surface/70 hover:text-primary underline-offset-4 hover:underline transition-all"
-              >
-                Track Order
-              </Link>
-            </li>
-          </ul>
-        </div>
+          </LinkList>
+        </Column>
 
         {/* Newsletter */}
-        <div className="opacity-90 hover:opacity-100 transition-opacity">
-          <h4 className="font-semibold text-primary mb-6 uppercase tracking-widest font-headline">
-            Newsletter
-          </h4>
-          <p className="text-on-surface/70 mb-4">
+        <Column>
+          <ColumnTitle>Newsletter</ColumnTitle>
+          <p style={{ color: "color-mix(in srgb, var(--color-on-surface) 70%, transparent)", marginBottom: "1rem" }}>
             Subscribe to receive updates on new collections and exclusive
             previews.
           </p>
-          <form className="flex border-b border-on-surface/20 pb-2 focus-within:border-primary transition-colors">
-            <input
+          <NewsletterForm>
+            <NewsletterInput
               type="email"
               placeholder="Email Address"
-              className="bg-transparent border-none focus:outline-none focus:ring-0 w-full text-xs italic text-on-surface placeholder:text-on-surface/50"
               required
             />
-            <button
+            <NewsletterButton
               type="submit"
-              className="text-primary font-bold text-xs uppercase tracking-widest hover:text-primary-container transition-colors font-headline"
             >
               Join
-            </button>
-          </form>
-        </div>
-      </div>
+            </NewsletterButton>
+          </NewsletterForm>
+        </Column>
+      </FooterGrid>
 
-      <div className="mt-20 border-t border-on-surface/5 pt-10 text-center text-on-surface/50 text-xs">
+      <FooterBottom>
         © {new Date().getFullYear()} Digital Atelier (Shree Dholi Sati). All
         Rights Reserved.
-      </div>
-    </footer>
+      </FooterBottom>
+    </FooterRoot>
   )
 }

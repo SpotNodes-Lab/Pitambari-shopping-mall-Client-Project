@@ -1,118 +1,211 @@
-import { motion } from "framer-motion"
-import { Link } from "react-router-dom"
-import { SectionHeader } from "@/components/shared/SectionHeader"
-import { Skeleton } from "@/components/ui/Skeleton"
+import { motion } from "framer-motion";
+import styled from "styled-components";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface Category {
-  id: string
-  title: string
-  subtitle: string
-  image: string
-  span?: string
+  id: string;
+  title: string;
+  subtitle: string;
+  image: string;
 }
 
 interface CategoryCurationProps {
-  data: Category[]
-  isLoading: boolean
+  data: Category[];
+  isLoading: boolean;
 }
 
 export function CategoryCuration({ data, isLoading }: CategoryCurationProps) {
-  if (isLoading || data.length === 0) {
+  // Skeleton loader mimics the perfect 6-square grid
+  if (isLoading || !data || data.length === 0) {
     return (
-      <section className="py-24 md:py-32 bg-surface">
-        <div className="max-w-[1920px] mx-auto px-6 md:px-12">
-          <Skeleton className="h-12 w-80 mb-4" />
-          <Skeleton className="h-1 w-24 mb-16" />
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 h-[800px]">
-            <Skeleton className="md:col-span-7 rounded-xl" />
-            <div className="md:col-span-5 grid grid-rows-2 gap-8">
-              <Skeleton className="rounded-xl" />
-              <Skeleton className="rounded-xl" />
-            </div>
-          </div>
-        </div>
-      </section>
-    )
+      <Section>
+        <Container>
+          <Header>
+            <Skeleton
+              width="18rem"
+              height="2.5rem"
+              style={{ marginBottom: "1rem" }}
+            />
+            <Skeleton width="22rem" height="1rem" />
+          </Header>
+          <Grid>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton
+                key={i}
+                aspectRatio="1 / 1"
+                borderRadius="4px"
+                style={{ width: "100%" }}
+              />
+            ))}
+          </Grid>
+        </Container>
+      </Section>
+    );
   }
 
-  const mainCategory = data[0]
-  const sideCategories = data.slice(1)
+  // Force exactly 6 items for the perfect 3x2 grid layout
+  const displayData = data.slice(0, 6);
 
   return (
-    <section className="py-24 md:py-32 bg-surface">
-      <div className="max-w-[1920px] mx-auto px-6 md:px-12">
-        <SectionHeader
-          title="Curation by Category"
-          subtitle="Selected masterpieces from our regional ateliers, celebrating the diversity of Indian craftsmanship."
-        />
+    <Section>
+      <Container>
+        <Header
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <Title>Curated Categories</Title>
+          <Subtitle>
+            A glimpse of the fine craftsmanship waiting for you in-store.
+          </Subtitle>
+        </Header>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 h-auto md:h-[800px]">
-          {/* Large Feature */}
-          {mainCategory && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="md:col-span-7 relative group overflow-hidden bg-surface-container-high rounded-xl h-[400px] md:h-full"
+        <Grid>
+          {displayData.map((cat, idx) => (
+            <LookbookItem
+              key={cat.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-20px" }}
+              transition={{ duration: 0.7, delay: idx * 0.1, ease: "easeOut" }}
             >
-              <img
-                src={mainCategory.image}
-                alt={mainCategory.title}
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-500" />
-              <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12">
-                <h3 className="font-headline text-3xl md:text-5xl font-bold text-white mb-3">
-                  {mainCategory.title}
-                </h3>
-                <Link
-                  to={`/category/${mainCategory.id}`}
-                  className="inline-block text-white font-label uppercase tracking-widest text-xs md:text-sm border-b border-white/50 pb-1 hover:border-white transition-all"
-                >
-                  {mainCategory.subtitle}
-                </Link>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Right Column */}
-          <div className="md:col-span-5 grid grid-rows-2 gap-6 md:gap-8 h-[800px] md:h-full">
-            {sideCategories.map((cat, idx) => (
-              <motion.div
-                key={cat.id}
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{
-                  duration: 0.8,
-                  delay: 0.2 * (idx + 1),
-                  ease: "easeOut",
-                }}
-                className="relative group overflow-hidden bg-surface-container-high rounded-xl h-full"
-              >
-                <img
-                  src={cat.image}
-                  alt={cat.title}
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 object-top"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                <div className="absolute bottom-8 left-8">
-                  <h3 className="font-headline text-2xl md:text-4xl font-bold text-white mb-2">
-                    {cat.title}
-                  </h3>
-                  <Link
-                    to={`/category/${cat.id}`}
-                    className="inline-block text-white font-label uppercase tracking-widest text-xs border-b border-white/50 pb-1 hover:border-white transition-all"
-                  >
-                    {cat.subtitle}
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  )
+              <img src={cat.image} alt={cat.title} />
+              <GradientOverlay />
+              <TextOverlay>
+                <h4>{cat.title}</h4>
+                <p>{cat.subtitle}</p>
+              </TextOverlay>
+            </LookbookItem>
+          ))}
+        </Grid>
+      </Container>
+    </Section>
+  );
 }
+
+// --- Styled Components ---
+
+const Section = styled.section`
+  padding-top: 4rem;
+  padding-bottom: 6rem;
+  background-color: #fdfdfc; /* Clean, very soft off-white */
+  display: flex;
+  align-items: center;
+`;
+
+const Container = styled.div`
+  width: 100%;
+  max-width: 1250px; /* Constrains width so squares don't get overly massive */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+`;
+
+const Header = styled(motion.div)`
+  text-align: center;
+  margin-bottom: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const Title = styled.h2`
+  font-family: "Playfair Display", "Baskerville", serif; /* Elegant styling */
+  font-size: 2.25rem;
+  font-weight: 500;
+  color: #222222;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+`;
+
+const Subtitle = styled.p`
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: #666666;
+  max-width: 500px;
+`;
+
+/* THE UNIFORM SQUARE GRID:
+  Mobile: 2 columns (2x3 grid)
+  Tablet/Desktop: 3 columns (3x2 grid)
+*/
+const Grid = styled.div`
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr); /* 2 items per row on mobile */
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr); /* 3 items per row on desktop */
+    gap: 2rem;
+  }
+`;
+
+/* By removing grid-area and adding `aspect-ratio: 1 / 1`, 
+  we guarantee a perfect square no matter the screen size. 
+*/
+const LookbookItem = styled(motion.div)`
+  position: relative;
+  aspect-ratio: 1 / 1; /* THE MAGIC FIX: Forces a perfect square */
+  border-radius: 4px; /* Subtle rounding for a softer feel */
+  overflow: hidden;
+  background-color: #eaeaea;
+
+  /* CRITICAL: No pointer cursor. This tells the user "Look, don't click" */
+  cursor: default;
+
+  img {
+    width: 100%;
+    height: 100%;
+    /* THE MAGIC FIX 2: perfectly crops any admin image to fill the square */
+    object-fit: cover;
+    object-position: center;
+    transition: transform 1.2s ease;
+  }
+
+  /* Very slow, elegant zoom on hover instead of a fast UI reaction */
+  &:hover img {
+    transform: scale(1.05);
+  }
+`;
+
+const GradientOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  /* Darkens the bottom slightly more so text is always readable */
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.15) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+`;
+
+const TextOverlay = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  pointer-events: none;
+
+  h4 {
+    font-family: var(--font-headline);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  p {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.85);
+  }
+`;

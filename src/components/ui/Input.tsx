@@ -1,21 +1,47 @@
 import * as React from "react"
-import { cn } from "@/utils/cn"
+import styled from "styled-components"
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  error?: boolean
+}
+
+const StyledInput = styled.input<{ $error?: boolean }>`
+  width: 100%;
+  height: 3rem;
+  padding: 0.5rem 1rem;
+
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-on-surface);
+
+  background-color: var(--color-surface-container-high);
+  border-radius: var(--radius-lg);
+  border: 2px solid transparent;
+
+  transition: background-color 200ms ease, border-color 200ms ease,
+    opacity 200ms ease;
+
+  &::placeholder {
+    color: ${"color-mix(in srgb, var(--color-on-surface-variant) 50%, transparent)"};
+  }
+
+  &:focus-visible {
+    outline: none;
+    background-color: var(--color-surface-container-lowest);
+    border-color: ${({ $error }) =>
+      $error ? "var(--color-error)" : "var(--color-primary)"};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
-    return (
-      <input
-        type={type}
-        className={cn(
-          "flex h-12 w-full rounded-t-md bg-surface-container-high px-4 py-2 font-body text-sm text-on-surface transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-on-surface-variant/50 focus-visible:outline-none focus-visible:bg-surface-container-lowest focus-visible:border-b-2 focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50",
-          className
-        )}
-        ref={ref}
-        {...props}
-      />
-    )
+  ({ type, error, ...props }, ref) => {
+    return <StyledInput ref={ref} type={type} $error={error} {...props} />
   }
 )
 Input.displayName = "Input"

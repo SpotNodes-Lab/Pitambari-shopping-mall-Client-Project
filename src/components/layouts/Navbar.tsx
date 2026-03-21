@@ -1,143 +1,308 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { motion, useScroll, useMotionValueEvent } from "framer-motion"
-import { Search, ShoppingBag, User, Menu, X } from "lucide-react"
-import { useUIStore } from "@/store/uiStore"
-import { NAV_LINKS } from "@/constants"
-import { cn } from "@/utils/cn"
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { Menu, MapPin, X } from "lucide-react";
+import styled from "styled-components";
+import { NAV_LINKS } from "@/constants";
+import { useUIStore } from "@/store/uiStore";
 
 export function Navbar() {
-  const { isMobileMenuOpen, toggleMobileMenu, cartCount } = useUIStore()
-  const { scrollY } = useScroll()
-  const [isScrolled, setIsScrolled] = useState(false)
+  const { isMobileMenuOpen, toggleMobileMenu } = useUIStore();
+  const location = useLocation();
+  const { scrollY } = useScroll();
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    setIsScrolled(latest > 50)
-  })
+    setIsScrolled(latest > 50);
+  });
+
+  const isLinkActive = (href: string) => {
+    if (href === "/") return location.pathname === "/";
+    return location.pathname.startsWith(href);
+  };
 
   return (
     <>
-      <motion.header
+      <Header
+        $scrolled={isScrolled}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className={cn(
-          "fixed top-0 w-full z-50 transition-all duration-300",
-          isScrolled
-            ? "bg-surface/80 backdrop-blur-xl shadow-sm py-4"
-            : "bg-transparent py-6"
-        )}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
-        <nav className="flex justify-between items-center px-6 md:px-12 max-w-[1920px] mx-auto">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="text-2xl font-bold tracking-tighter text-on-surface z-50 font-headline"
-          >
-            Digital Atelier
-          </Link>
-
-          {/* Desktop Links */}
-          <ul className="hidden md:flex gap-8 items-center">
+        <NavContainer>
+          {/* LEFT: Desktop Navigation */}
+          <DesktopNav>
             {NAV_LINKS.map((link) => (
-              <li key={link.name}>
-                <Link
-                  to={link.href}
-                  className={cn(
-                    "font-headline tracking-tight text-sm uppercase transition-colors relative group",
-                    link.active
-                      ? "text-primary"
-                      : "text-on-surface hover:text-primary"
-                  )}
-                >
-                  {link.name}
-                  <span
-                    className={cn(
-                      "absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300",
-                      link.active ? "w-full" : "w-0 group-hover:w-full"
-                    )}
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {/* Actions */}
-          <div className="flex items-center gap-4 md:gap-6 z-50">
-            <button
-              className="flex items-center text-on-surface hover:text-primary transition-colors"
-              aria-label="Search"
-            >
-              <Search size={22} strokeWidth={1.5} />
-            </button>
-
-            <button
-              className="flex items-center text-on-surface hover:text-primary transition-colors relative"
-              aria-label="Cart"
-            >
-              <ShoppingBag size={22} strokeWidth={1.5} />
-              <span className="absolute -top-1.5 -right-1.5 bg-primary text-on-primary text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                {cartCount}
-              </span>
-            </button>
-
-            <button
-              className="hidden md:flex items-center text-on-surface hover:text-primary transition-colors"
-              aria-label="User account"
-            >
-              <User size={22} strokeWidth={1.5} />
-            </button>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              className="md:hidden flex items-center text-on-surface hover:text-primary transition-colors"
-              onClick={toggleMobileMenu}
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? (
-                <X size={24} strokeWidth={1.5} />
-              ) : (
-                <Menu size={24} strokeWidth={1.5} />
-              )}
-            </button>
-          </div>
-        </nav>
-      </motion.header>
-
-      {/* Mobile Menu Overlay */}
-      <motion.div
-        initial={false}
-        animate={
-          isMobileMenuOpen
-            ? { opacity: 1, pointerEvents: "auto" as const }
-            : { opacity: 0, pointerEvents: "none" as const }
-        }
-        className="fixed inset-0 z-40 bg-surface flex flex-col pt-24 px-6 md:hidden"
-      >
-        <ul className="flex flex-col gap-6 items-center">
-          {NAV_LINKS.map((link) => (
-            <li key={link.name}>
-              <Link
+              <NavLink
+                key={link.name}
                 to={link.href}
-                onClick={toggleMobileMenu}
-                className={cn(
-                  "font-headline text-2xl uppercase tracking-widest",
-                  link.active
-                    ? "text-primary border-b-2 border-primary"
-                    : "text-on-surface"
-                )}
+                $active={isLinkActive(link.href)}
               >
                 {link.name}
-              </Link>
-            </li>
+              </NavLink>
+            ))}
+          </DesktopNav>
+
+          {/* CENTER: Logo */}
+          <LogoWrapper>
+            <MobileMenuBtn onClick={toggleMobileMenu} aria-label="Menu">
+              <Menu size={24} strokeWidth={1.5} />
+            </MobileMenuBtn>
+
+            <Logo to="/">
+              <span className="brand-name">DHOLI SATI</span>
+              <span className="brand-tagline">Retail Mall India</span>
+            </Logo>
+
+            {/* Mobile Location Icon to balance the hamburger menu */}
+            <MobileLocationBtn to="/showrooms" aria-label="Find a Showroom">
+              <MapPin size={22} strokeWidth={1.5} />
+            </MobileLocationBtn>
+          </LogoWrapper>
+
+          {/* RIGHT: Showcase Call to Action */}
+          <Actions>
+            <LocationCTA to="/showrooms">
+              <MapPin size={18} strokeWidth={1.5} />
+              <span>Visit a Showroom</span>
+            </LocationCTA>
+          </Actions>
+        </NavContainer>
+      </Header>
+
+      {/* Mobile Menu Overlay */}
+      <MobileMenuOverlay
+        initial={{ opacity: 0, x: "-100%" }}
+        animate={{
+          opacity: isMobileMenuOpen ? 1 : 0,
+          x: isMobileMenuOpen ? "0%" : "-100%",
+        }}
+        transition={{ duration: 0.4, ease: "easeInOut" }}
+      >
+        <CloseMenuBtn onClick={toggleMobileMenu} aria-label="Close menu">
+          <X size={28} strokeWidth={1.5} />
+        </CloseMenuBtn>
+
+        <MobileLinks>
+          {NAV_LINKS.map((link) => (
+            <MobileNavLink
+              key={link.name}
+              to={link.href}
+              onClick={toggleMobileMenu}
+              $active={isLinkActive(link.href)}
+            >
+              {link.name}
+            </MobileNavLink>
           ))}
-          <li className="mt-8">
-            <button className="flex items-center gap-2 text-on-surface font-headline uppercase tracking-widest">
-              <User size={20} /> Sign In
-            </button>
-          </li>
-        </ul>
-      </motion.div>
+        </MobileLinks>
+
+        <MobileFooter>
+          <p>Experience the collection in person.</p>
+          <LocationCTA to="/showrooms" onClick={toggleMobileMenu}>
+            <MapPin size={18} /> Find your nearest store
+          </LocationCTA>
+        </MobileFooter>
+      </MobileMenuOverlay>
     </>
-  )
+  );
 }
+
+// --- Styled Components ---
+
+const Header = styled(motion.header)<{ $scrolled: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  padding: ${({ $scrolled }) => ($scrolled ? "1rem 0" : "1.5rem 0")};
+  background-color: ${({ $scrolled }) =>
+    $scrolled ? "rgba(255, 255, 255, 0.95)" : "transparent"};
+  backdrop-filter: ${({ $scrolled }) => ($scrolled ? "blur(12px)" : "none")};
+  border-bottom: ${({ $scrolled }) =>
+    $scrolled ? "1px solid rgba(0,0,0,0.05)" : "1px solid transparent"};
+  transition: all 0.3s ease;
+`;
+
+const NavContainer = styled.div`
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1.25rem;
+  }
+`;
+
+const DesktopNav = styled.nav`
+  display: flex;
+  gap: 2.5rem;
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const NavLink = styled(Link)<{ $active: boolean }>`
+  font-family: var(--font-headline);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  color: ${({ $active }) =>
+    $active ? "var(--color-primary)" : "var(--color-on-surface)"};
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: ${({ $active }) => ($active ? "100%" : "0%")};
+    height: 1px;
+    background-color: var(--color-on-surface);
+    transition: width 0.3s ease;
+  }
+
+  &:hover::after {
+    width: 100%;
+  }
+`;
+
+const LogoWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  @media (min-width: 769px) {
+    justify-content: center;
+    gap: 1rem;
+    width: auto;
+  }
+`;
+
+const Logo = styled(Link)`
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+
+  .brand-name {
+    font-family: var(--font-headline);
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: var(--color-on-surface);
+  }
+
+  .brand-tagline {
+    font-family: var(--font-label);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: color-mix(in srgb, var(--color-on-surface) 60%, transparent);
+    margin-top: 0.1rem;
+  }
+`;
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const LocationCTA = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-label);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  color: var(--color-on-surface);
+  padding: 0.5rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-on-surface) 20%, transparent);
+  border-radius: 2px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-on-surface);
+    color: var(--color-surface);
+  }
+`;
+
+const MobileMenuBtn = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-on-surface);
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+const MobileLocationBtn = styled(Link)`
+  color: var(--color-on-surface);
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+const MobileMenuOverlay = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-surface);
+  z-index: 100;
+  padding: 6rem 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
+const CloseMenuBtn = styled.button`
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-on-surface);
+`;
+
+const MobileLinks = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+`;
+
+const MobileNavLink = styled(Link)<{ $active: boolean }>`
+  font-family: var(--font-headline);
+  font-size: 2rem;
+  text-decoration: none;
+  color: ${({ $active }) =>
+    $active ? "var(--color-primary)" : "var(--color-on-surface)"};
+`;
+
+const MobileFooter = styled.div`
+  border-top: 1px solid
+    color-mix(in srgb, var(--color-on-surface) 10%, transparent);
+  padding-top: 2rem;
+
+  p {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: color-mix(in srgb, var(--color-on-surface) 60%, transparent);
+    margin-bottom: 1rem;
+  }
+`;

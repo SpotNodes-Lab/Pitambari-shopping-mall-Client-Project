@@ -1,115 +1,216 @@
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Button } from "@/components/ui/Button"
-import { Input } from "@/components/ui/Input"
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import { MapPin } from "lucide-react";
 
-const formSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
-})
-
-type FormValues = z.infer<typeof formSchema>
+// In a real app, this data would come from your dataStore/backend
+const mockOfferData = {
+  eyebrow: "Season Exclusive",
+  title: "The Grand Wedding Offers",
+  description:
+    "Step into the season of celebrations. Discover our newly arrived curated collection of bridal lehengas, sherwanis, and exquisite festive wear. Visit our showroom to explore exclusive in-store offers.",
+  image:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuA1X4s4mH8XnZ9Ej_Jq8KF2mVZkHngt_KQwIhtBAZHj-HkZZlKKA9aDepzpyfvT6ghjF2d1KWOse79zHzPjwYqzct4FgcdWK4TYVBQmjyHp7Qcoc6pPEYyjLTA8r8u4oeRG2kURJMmHk4kbSf51mw1nuJ7jnLV0ctWRLC2xBo_-wpVKwxF_SoBTDpluoTtfHLULc2Vp5X5_kLFEJE6QOty9W_NbEfSJleQboEqY5gJuQc-gL3vViuza990kcfQV5e2haKB4Gzv6RpI",
+  validityText: "Valid across all Dholi Sati Retail Mall showrooms.",
+};
 
 export function PrivilegeSale() {
-  const [isSubmitted, setIsSubmitted] = useState(false)
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-  })
-
-  function onSubmit(_values: FormValues) {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        setIsSubmitted(true)
-        resolve()
-      }, 1000)
-    })
-  }
-
   return (
-    <section className="py-20 px-6 md:px-12 bg-surface">
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="max-w-7xl mx-auto bg-surface-container-lowest overflow-hidden shadow-[0_20px_40px_rgba(22,29,30,0.06)] flex flex-col md:flex-row items-center rounded-2xl border border-outline-variant/10"
-      >
-        <div className="w-full md:w-1/2 p-8 md:p-16">
-          <span className="text-primary font-headline font-bold tracking-[0.3em] uppercase text-xs mb-4 block">
-            Exclusive Invitation
-          </span>
-          <h2 className="font-headline text-4xl md:text-5xl font-black text-on-surface mb-6 leading-tight">
-            Festive Privilege <br />
-            Sale
-          </h2>
-          <p className="text-on-surface/70 mb-8 font-body text-base md:text-lg leading-relaxed">
-            Early access to our winter wedding collection. Experience luxury that
-            speaks of heritage and modern elegance.
-          </p>
+    <Section>
+      <Container>
+        <AnnouncementCard
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          {/* Left Side: The Offer Details */}
+          <ContentSide>
+            <EyebrowWrapper>
+              <DecorativeDiamond />
+              <TitleEyebrow>{mockOfferData.eyebrow}</TitleEyebrow>
+              <DecorativeDiamond />
+            </EyebrowWrapper>
 
-          <div className="bg-surface-container-high inline-flex items-center px-6 py-3 rounded-xl mb-10 border border-outline-variant/20">
-            <span className="text-xs font-label uppercase tracking-widest text-on-surface/60 mr-4">
-              Use Code:
-            </span>
-            <span className="font-headline font-bold text-primary tracking-widest text-lg">
-              ATELIER24
-            </span>
-          </div>
+            <Title>{mockOfferData.title}</Title>
 
-          {isSubmitted ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-surface-container-high p-6 rounded-xl border border-outline-variant/20 text-center"
-            >
-              <h4 className="font-headline font-bold text-primary mb-2">
-                Invitation Claimed!
-              </h4>
-              <p className="text-on-surface/70 text-sm font-body">
-                Please check your email for the exclusive access link.
-              </p>
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <Input
-                  placeholder="Enter your email to claim"
-                  type="email"
-                  {...register("email")}
-                  className={
-                    errors.email
-                      ? "border-error focus-visible:border-error"
-                      : ""
-                  }
-                />
-                {errors.email && (
-                  <p className="text-error text-xs mt-1 font-body">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
-                {isSubmitting ? "Processing..." : "Claim Privilege"}
-              </Button>
-            </form>
-          )}
-        </div>
+            <Description>{mockOfferData.description}</Description>
 
-        <div className="w-full md:w-1/2 h-[400px] md:h-[600px]">
-          <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1X4s4mH8XnZ9Ej_Jq8KF2mVZkHngt_KQwIhtBAZHj-HkZZlKKA9aDepzpyfvT6ghjF2d1KWOse79zHzPjwYqzct4FgcdWK4TYVBQmjyHp7Qcoc6pPEYyjLTA8r8u4oeRG2kURJMmHk4kbSf51mw1nuJ7jnLV0ctWRLC2xBo_-wpVKwxF_SoBTDpluoTtfHLULc2Vp5X5_kLFEJE6QOty9W_NbEfSJleQboEqY5gJuQc-gL3vViuza990kcfQV5e2haKB4Gzv6RpI"
-            alt="Festive Privilege Sale"
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </motion.div>
-    </section>
-  )
+            <ValidityText>{mockOfferData.validityText}</ValidityText>
+
+            <ActionContainer>
+              <VisitButton to="/showrooms">
+                <MapPin size={18} />
+                Find Your Nearest Showroom
+              </VisitButton>
+            </ActionContainer>
+          </ContentSide>
+
+          {/* Right Side: The Admin Image */}
+          <ImageSide>
+            <OfferImage
+              src={mockOfferData.image}
+              alt={mockOfferData.title}
+              loading="lazy"
+            />
+          </ImageSide>
+        </AnnouncementCard>
+      </Container>
+    </Section>
+  );
 }
+
+// --- Styled Components ---
+
+const Section = styled.section`
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  background-color: #faf9f7;
+`;
+
+const Container = styled.div`
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+`;
+
+const AnnouncementCard = styled(motion.div)`
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 8px; /* Slightly rounded for an elegant card feel */
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+
+  /* Switch to horizontal layout on desktop */
+  @media (min-width: 900px) {
+    flex-direction: row;
+    min-height: 400px;
+  }
+`;
+
+const ContentSide = styled.div`
+  width: 100%;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-bottom: 1px solid #eaeaea;
+
+  @media (min-width: 900px) {
+    width: 50%;
+    padding: 4rem;
+    border-bottom: none;
+    border-right: 1px solid #eaeaea;
+  }
+`;
+
+const EyebrowWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+`;
+
+const DecorativeDiamond = styled.div`
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-primary);
+  transform: rotate(45deg);
+  opacity: 0.7;
+`;
+
+const TitleEyebrow = styled.span`
+  font-family: var(--font-label);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: var(--color-primary);
+`;
+
+const Title = styled.h2`
+  font-family: "Playfair Display", "Baskerville", serif; /* Elegant serif */
+  font-size: 2.5rem;
+  color: #222222;
+  margin-bottom: 1.5rem;
+  line-height: 1.15;
+  font-weight: 500;
+
+  @media (min-width: 768px) {
+    /* font-size: 3.25rem; */
+  }
+`;
+
+const Description = styled.p`
+  color: #555555;
+  margin-bottom: 2rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 400px;
+`;
+
+const ValidityText = styled.p`
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #888888;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eaeaea;
+  width: 80%;
+`;
+
+const ActionContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const VisitButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  font-family: var(--font-headline);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #222222;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const ImageSide = styled.div`
+  width: 100%;
+  height: 300px;
+
+  @media (min-width: 900px) {
+    width: 50%;
+    height: auto; /* Stretches to match the height of the ContentSide */
+  }
+`;
+
+const OfferImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures whatever banner admin uploads fits the space */
+  object-position: center;
+`;
