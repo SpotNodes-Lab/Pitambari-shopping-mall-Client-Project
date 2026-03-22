@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDataStore } from "@/store/dataStore";
 import { HeroSection } from "@/components/sections/HeroSection";
+import { BannerSection } from "@/components/sections/BannerSection";
 import { CategoryCuration } from "@/components/sections/CategoryCuration";
 import { PrivilegeSale } from "@/components/sections/PrivilegeSale";
 import { LatestArrivals } from "@/components/sections/LatestArrivals";
@@ -20,6 +21,7 @@ export function HomePage() {
 
   return (
     <>
+      <BannerSection />
       <HeroSection data={hero} isLoading={isLoading.hero} />
       <ValuePropsSection />
       <CategoryCuration data={categories} isLoading={isLoading.categories} />
@@ -28,6 +30,7 @@ export function HomePage() {
       <FaqSection />
 
       <ReelsSection />
+      <ReelsSection variant="youtube" />
       <LatestArrivals data={latestArrivals} isLoading={isLoading.arrivals} />
 
       <TestimonialsSection data={TESTIMONIALS} />

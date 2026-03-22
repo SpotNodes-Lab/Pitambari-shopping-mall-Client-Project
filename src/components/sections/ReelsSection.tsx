@@ -1,7 +1,9 @@
 import { useRef, useEffect } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import { Instagram } from "lucide-react";
+import { Instagram, Youtube } from "lucide-react";
+
+export type ReelsSectionVariant = "instagram" | "youtube";
 
 interface Reel {
   id: string;
@@ -37,7 +39,37 @@ const REELS_DATA: Reel[] = [
   },
 ];
 
-export function ReelsSection() {
+const VARIANT_COPY: Record<
+  ReelsSectionVariant,
+  {
+    eyebrow: string;
+    titleBeforeItalic: string;
+    subtitle: string;
+    cta: string;
+    href: string;
+  }
+> = {
+  instagram: {
+    eyebrow: "@PitambariShoppingMall",
+    titleBeforeItalic: "The Instagram ",
+    subtitle:
+      "Get inspired by real patrons, fresh arrivals, and the latest ethnic trends straight from our showrooms.",
+    cta: "Follow Our Journey",
+    href: "https://instagram.com",
+  },
+  youtube: {
+    eyebrow: "@PitambariShoppingMall",
+    titleBeforeItalic: "The YouTube Shorts ",
+    subtitle:
+      "Quick looks, styling ideas, and showroom moments in bite-sized clips—same energy as our floor, in vertical form.",
+    cta: "Subscribe to Our Channel",
+    href: "https://www.youtube.com/@PitambariShoppingMall",
+  },
+};
+
+export function ReelsSection({ variant = "instagram" }: { variant?: ReelsSectionVariant } = {}) {
+  const copy = VARIANT_COPY[variant];
+
   return (
     <Section>
       <GiantWatermark>SOCIAL</GiantWatermark>
@@ -51,22 +83,24 @@ export function ReelsSection() {
         >
           <EyebrowWrapper>
             <DecorativeDiamond />
-            <Eyebrow>@PitambariShoppingMall</Eyebrow>
+            <Eyebrow>{copy.eyebrow}</Eyebrow>
           </EyebrowWrapper>
           <Title>
-            The Instagram <span className="serif-italic">Edit</span>
+            {copy.titleBeforeItalic}
+            <span className="serif-italic">Edit</span>
           </Title>
-          <Subtitle>
-            Get inspired by real patrons, fresh arrivals, and the latest ethnic
-            trends straight from our showrooms.
-          </Subtitle>
+          <Subtitle>{copy.subtitle}</Subtitle>
           <FollowButton
-            href="https://instagram.com"
+            href={copy.href}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Instagram size={18} />
-            Follow Our Journey
+            {variant === "youtube" ? (
+              <Youtube size={18} />
+            ) : (
+              <Instagram size={18} />
+            )}
+            {copy.cta}
           </FollowButton>
         </LeftPanel>
 
@@ -74,7 +108,11 @@ export function ReelsSection() {
         <RightPanel>
           <ReelsTrack>
             {REELS_DATA.map((reel, index) => (
-              <ReelCard key={reel.id} reel={reel} index={index} />
+              <ReelCard
+                key={`${variant}-${reel.id}`}
+                reel={reel}
+                index={index}
+              />
             ))}
           </ReelsTrack>
         </RightPanel>

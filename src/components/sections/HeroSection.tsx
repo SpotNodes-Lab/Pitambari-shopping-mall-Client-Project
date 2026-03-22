@@ -147,18 +147,13 @@ export function HeroSection({ data, isLoading }: HeroSectionProps) {
 // --- Styled Components ---
 
 const Section = styled.section<{ $isLoading?: boolean }>`
-  min-height: 100vh;
-  padding-top: clamp(0.75rem, 2.5vw, 2rem);
+  min-height: ${(p) => (p.$isLoading ? "min(42vh, 360px)" : "auto")};
+  padding-top: clamp(1.5rem, 2.5vw, 2.5rem);
   padding-bottom: clamp(2rem, 6vw, 4rem);
   background-color: var(--color-surface-dim);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   overflow: hidden;
-
-  @media (max-width: 1023px) {
-    min-height: auto;
-    align-items: flex-start;
-  }
 `;
 
 const Container = styled.div`
@@ -169,12 +164,10 @@ const Container = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: clamp(1.75rem, 5vw, 4rem);
-  align-items: center;
+  align-items: start;
 
   @media (min-width: 1024px) {
     grid-template-columns: 1fr 1.2fr;
-    padding-left: calc(4rem + env(safe-area-inset-left, 0px));
-    padding-right: calc(4rem + env(safe-area-inset-right, 0px));
   }
 `;
 
