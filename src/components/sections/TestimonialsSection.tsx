@@ -1,12 +1,43 @@
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import { Star } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import {
+  AddReviewModal,
+  type ReviewFormValues,
+} from "@/components/shared/AddReviewModal";
+
+const USER_REVIEWS_STORAGE_KEY = "pitambari-patrons-reviews";
 
 export interface Testimonial {
   id: number;
   name: string;
   title: string;
   quote: string;
+  /** 1–5; defaults to 5 in the UI when omitted (e.g. static copy). */
+  rating?: number;
+}
+
+function loadUserReviews(): Testimonial[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(USER_REVIEWS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item): item is Testimonial =>
+        !!item &&
+        typeof item === "object" &&
+        typeof (item as Testimonial).id === "number" &&
+        typeof (item as Testimonial).name === "string" &&
+        typeof (item as Testimonial).title === "string" &&
+        typeof (item as Testimonial).quote === "string"
+    );
+  } catch {
+    return [];
+  }
 }
 
 // Supplying some fallback premium data if backend doesn't provide it
@@ -35,7 +66,43 @@ const fallbackData: Testimonial[] = [
 ];
 
 export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
-  const testimonials = data && data.length > 0 ? data : fallbackData;
+  const baseTestimonials = useMemo(
+    () => (data && data.length > 0 ? data : fallbackData),
+    [data]
+  );
+  const [userReviews, setUserReviews] = useState<Testimonial[]>(() =>
+    loadUserReviews()
+  );
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        USER_REVIEWS_STORAGE_KEY,
+        JSON.stringify(userReviews)
+      );
+    } catch {
+      /* ignore quota / private mode */
+    }
+  }, [userReviews]);
+
+  const testimonials = useMemo(
+    () => [...userReviews, ...baseTestimonials],
+    [userReviews, baseTestimonials]
+  );
+
+  function handleAddReview(values: ReviewFormValues) {
+    setUserReviews((prev) => [
+      {
+        id: Date.now(),
+        name: values.name.trim(),
+        title: values.title.trim(),
+        quote: values.quote.trim(),
+        rating: values.rating,
+      },
+      ...prev,
+    ]);
+  }
 
   return (
     <Section>
@@ -55,6 +122,15 @@ export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
           <Subtitle>
             Discover what families are saying about their in-store experiences.
           </Subtitle>
+          <CtaWrap>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setReviewModalOpen(true)}
+            >
+              Write a review
+            </Button>
+          </CtaWrap>
         </Header>
 
         <Grid>
@@ -74,9 +150,17 @@ export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
               <QuoteWatermark>“</QuoteWatermark>
 
               <Stars>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} size={14} fill="#d4af37" color="#d4af37" />
-                ))}
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const filled = star <= (t.rating ?? 5);
+                  return (
+                    <Star
+                      key={star}
+                      size={14}
+                      fill={filled ? "#d4af37" : "none"}
+                      color="#d4af37"
+                    />
+                  );
+                })}
               </Stars>
 
               <Quote>"{t.quote}"</Quote>
@@ -89,6 +173,12 @@ export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
           ))}
         </Grid>
       </Container>
+
+      <AddReviewModal
+        open={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        onSubmitReview={handleAddReview}
+      />
     </Section>
   );
 }
@@ -161,6 +251,13 @@ const Subtitle = styled.p`
   color: #666666;
   max-width: 32rem;
   line-height: 1.55;
+`;
+
+const CtaWrap = styled.div`
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 `;
 
 const Grid = styled.div`

@@ -6,6 +6,8 @@ import styled from "styled-components";
 import { NAV_LINKS } from "@/constants";
 import { useUIStore } from "@/store/uiStore";
 
+const PITAMBRI_MAP_URL = "https://maps.app.goo.gl/ejHV9zB84yHDPtrj9";
+
 export function Navbar() {
   const { isMobileMenuOpen, toggleMobileMenu } = useUIStore();
   const location = useLocation();
@@ -55,16 +57,25 @@ export function Navbar() {
             </Logo>
 
             {/* Mobile Location Icon to balance the hamburger menu */}
-            <MobileLocationBtn to="/showrooms" aria-label="Find a Showroom">
+            <MobileLocationBtn
+              href={PITAMBRI_MAP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Visit Pitambri on Google Maps"
+            >
               <MapPin size={22} strokeWidth={1.5} />
             </MobileLocationBtn>
           </LogoWrapper>
 
           {/* RIGHT: Showcase Call to Action */}
           <Actions>
-            <LocationCTA to="/showrooms">
+            <LocationCTA
+              href={PITAMBRI_MAP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <MapPin size={18} strokeWidth={1.5} />
-              <span>Visit a Showroom</span>
+              <span>Visit Pitambri</span>
             </LocationCTA>
           </Actions>
         </NavContainer>
@@ -98,8 +109,13 @@ export function Navbar() {
 
         <MobileFooter>
           <p>Experience the collection in person.</p>
-          <LocationCTA to="/showrooms" onClick={toggleMobileMenu}>
-            <MapPin size={18} /> Find your nearest store
+          <LocationCTA
+            href={PITAMBRI_MAP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={toggleMobileMenu}
+          >
+            <MapPin size={18} /> Visit Pitambri
           </LocationCTA>
         </MobileFooter>
       </MobileMenuOverlay>
@@ -219,7 +235,7 @@ const Actions = styled.div`
   }
 `;
 
-const LocationCTA = styled(Link)`
+const LocationCTA = styled.a`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -251,7 +267,7 @@ const MobileMenuBtn = styled.button`
   }
 `;
 
-const MobileLocationBtn = styled(Link)`
+const MobileLocationBtn = styled.a`
   color: var(--color-on-surface);
   display: none;
   @media (max-width: 768px) {

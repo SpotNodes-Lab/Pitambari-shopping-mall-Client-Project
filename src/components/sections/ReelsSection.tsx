@@ -1,7 +1,7 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import { Instagram, Youtube } from "lucide-react";
+import { Instagram, Youtube, X } from "lucide-react";
 
 export type ReelsSectionVariant = "instagram" | "youtube";
 
@@ -39,6 +39,9 @@ const REELS_DATA: Reel[] = [
   },
 ];
 
+/** Clips shown in the horizontal strip; the rest are reachable via “View all”. */
+const PREVIEW_REEL_COUNT = 3;
+
 const VARIANT_COPY: Record<
   ReelsSectionVariant,
   {
@@ -47,6 +50,8 @@ const VARIANT_COPY: Record<
     subtitle: string;
     cta: string;
     href: string;
+    viewAllModalTitle: string;
+    moreLabel: string;
   }
 > = {
   instagram: {
@@ -56,6 +61,8 @@ const VARIANT_COPY: Record<
       "Get inspired by real patrons, fresh arrivals, and the latest ethnic trends straight from our showrooms.",
     cta: "Follow Our Journey",
     href: "https://instagram.com",
+    viewAllModalTitle: "All Instagram reels",
+    moreLabel: "reel",
   },
   youtube: {
     eyebrow: "@PitambariShoppingMall",
@@ -64,11 +71,26 @@ const VARIANT_COPY: Record<
       "Quick looks, styling ideas, and showroom moments in bite-sized clips—same energy as our floor, in vertical form.",
     cta: "Subscribe to Our Channel",
     href: "https://www.youtube.com/@PitambariShoppingMall",
+    viewAllModalTitle: "All YouTube Shorts",
+    moreLabel: "Short",
   },
 };
 
 export function ReelsSection({ variant = "instagram" }: { variant?: ReelsSectionVariant } = {}) {
   const copy = VARIANT_COPY[variant];
+  const [viewAllOpen, setViewAllOpen] = useState(false);
+  const previewReels = REELS_DATA.slice(0, PREVIEW_REEL_COUNT);
+  const hiddenCount = Math.max(0, REELS_DATA.length - PREVIEW_REEL_COUNT);
+  const hasMore = hiddenCount > 0;
+
+  useEffect(() => {
+    if (!viewAllOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [viewAllOpen]);
 
   return (
     <Section>
@@ -102,31 +124,144 @@ export function ReelsSection({ variant = "instagram" }: { variant?: ReelsSection
             )}
             {copy.cta}
           </FollowButton>
+          {hasMore && (
+            <ViewAllHint>
+              <span>
+                {PREVIEW_REEL_COUNT} of {REELS_DATA.length} shown ·{" "}
+                {hiddenCount} more {copy.moreLabel}
+                {hiddenCount === 1 ? "" : "s"}
+              </span>
+              <ViewAllTextButton
+                type="button"
+                onClick={() => setViewAllOpen(true)}
+              >
+                View all
+              </ViewAllTextButton>
+            </ViewAllHint>
+          )}
         </LeftPanel>
 
         {/* Right Panel: Staggered Scrolling Videos */}
         <RightPanel>
-          <ReelsTrack>
-            {REELS_DATA.map((reel, index) => (
-              <ReelCard
-                key={`${variant}-${reel.id}`}
-                reel={reel}
-                index={index}
-              />
-            ))}
-          </ReelsTrack>
+          {hasMore && (
+            <RightPanelToolbar>
+              <ToolbarSpacer aria-hidden />
+              <ToolbarViewAll
+                type="button"
+                onClick={() => setViewAllOpen(true)}
+              >
+                View all ({REELS_DATA.length})
+              </ToolbarViewAll>
+            </RightPanelToolbar>
+          )}
+          <ReelsScrollViewport>
+            <ReelsTrack>
+              {previewReels.map((reel, index) => (
+                <ReelCard
+                  key={`${variant}-${reel.id}`}
+                  reel={reel}
+                  index={index}
+                />
+              ))}
+            </ReelsTrack>
+          </ReelsScrollViewport>
+          {hasMore && (
+            <MoreReelsIndicatorRow>
+              <MoreReelsEllipsis
+                type="button"
+                onClick={() => setViewAllOpen(true)}
+                aria-label={`View all ${REELS_DATA.length} clips`}
+              >
+                <span aria-hidden>…</span>
+              </MoreReelsEllipsis>
+            </MoreReelsIndicatorRow>
+          )}
         </RightPanel>
       </Container>
+
+      {viewAllOpen && (
+        <ReelsViewAllModal
+          title={copy.viewAllModalTitle}
+          reels={REELS_DATA}
+          variantKey={variant}
+          onClose={() => setViewAllOpen(false)}
+        />
+      )}
     </Section>
   );
 }
 
+function ReelsViewAllModal({
+  title,
+  reels,
+  variantKey,
+  onClose,
+}: {
+  title: string;
+  reels: Reel[];
+  variantKey: ReelsSectionVariant;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <ModalOverlay
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reels-view-all-title"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <ModalShell>
+        <ModalTop>
+          <ModalTitle id="reels-view-all-title">{title}</ModalTitle>
+          <ModalClose type="button" onClick={onClose} aria-label="Close">
+            <X size={20} strokeWidth={2} />
+          </ModalClose>
+        </ModalTop>
+        <ModalGrid>
+          {reels.map((reel, index) => (
+            <ReelCard
+              key={`${variantKey}-modal-${reel.id}`}
+              reel={reel}
+              index={index}
+              autoplayOnIntersect={false}
+              staggerLayout={false}
+              compact
+            />
+          ))}
+        </ModalGrid>
+      </ModalShell>
+    </ModalOverlay>
+  );
+}
+
 // Sub-component for individual Reel
-function ReelCard({ reel, index }: { reel: Reel; index: number }) {
+function ReelCard({
+  reel,
+  index,
+  autoplayOnIntersect = true,
+  staggerLayout = true,
+  compact = false,
+}: {
+  reel: Reel;
+  index: number;
+  autoplayOnIntersect?: boolean;
+  staggerLayout?: boolean;
+  compact?: boolean;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Intersection Observer for Mobile Autoplay UX (Plays when in center of screen)
   useEffect(() => {
+    if (!autoplayOnIntersect) return;
     const videoElement = videoRef.current;
     if (!videoElement) return;
 
@@ -144,20 +279,28 @@ function ReelCard({ reel, index }: { reel: Reel; index: number }) {
 
     observer.observe(videoElement);
     return () => observer.disconnect();
-  }, []);
+  }, [autoplayOnIntersect]);
 
   const handleMouseEnter = () => videoRef.current?.play();
   const handleMouseLeave = () => videoRef.current?.pause();
 
+  const staggerClass =
+    staggerLayout && index % 2 !== 0 ? "staggered-down" : "";
+
   return (
     <CardWrapper
-      className={index % 2 !== 0 ? "staggered-down" : ""}
+      className={staggerClass}
+      $compact={compact}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.7, delay: index * 0.15 }}
     >
-      <Card onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <Card
+        $compact={compact}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <Video
           ref={videoRef}
           src={reel.videoUrl}
@@ -317,10 +460,42 @@ const FollowButton = styled.a`
   }
 `;
 
+const ViewAllHint = styled.p`
+  margin: 1rem 0 0;
+  max-width: 26rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #666666;
+
+  span {
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+`;
+
+const ViewAllTextButton = styled.button`
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: #222222;
+  }
+`;
+
 /* --- RIGHT PANEL (Staggered Scrolling Track) --- */
 const RightPanel = styled.div`
   width: 100%;
-  overflow-x: auto;
   padding-bottom: clamp(1.25rem, 4vw, 2rem);
 
   @media (min-width: 1024px) {
@@ -331,11 +506,50 @@ const RightPanel = styled.div`
     /* Adds extra padding at the bottom so the staggered cards aren't cut off */
     padding-bottom: 5rem;
   }
+`;
 
+const ReelsScrollViewport = styled.div`
+  overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
+
   &::-webkit-scrollbar {
     display: none;
+  }
+`;
+
+const RightPanelToolbar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+  padding-right: clamp(0.25rem, 2vw, 0.5rem);
+
+  @media (min-width: 1024px) {
+    padding-right: clamp(1rem, 4vw, 2rem);
+  }
+`;
+
+const ToolbarSpacer = styled.div`
+  flex: 1;
+`;
+
+const ToolbarViewAll = styled.button`
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  padding: 0.35rem 0;
+
+  &:hover {
+    color: #222222;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 `;
 
@@ -346,9 +560,59 @@ const ReelsTrack = styled.div`
   padding-right: clamp(1rem, 4vw, 2rem);
 `;
 
-const CardWrapper = styled(motion.div)`
+const MoreReelsIndicatorRow = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  margin-top: clamp(0.35rem, 2vw, 0.65rem);
+`;
+
+const MoreReelsEllipsis = styled.button`
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  line-height: 1;
+  color: var(--color-primary);
+  opacity: 0.75;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+
+  span {
+    display: inline-block;
+    font-family: var(--font-headline);
+    font-weight: 800;
+    font-size: clamp(1.5rem, 4.5vw, 1.85rem);
+    letter-spacing: 0.12em;
+    transform: translateY(0.06em);
+  }
+
+  &:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+`;
+
+const CardWrapper = styled(motion.div)<{ $compact?: boolean }>`
   flex-shrink: 0;
   scroll-snap-align: center;
+
+  ${({ $compact }) =>
+    $compact &&
+    `
+    scroll-snap-align: unset;
+    width: 100%;
+    max-width: 220px;
+    justify-self: center;
+  `}
 
   /* THE MAGIC: This pushes every 2nd card down to create a stylish wave/staggered layout */
   @media (min-width: 768px) {
@@ -358,9 +622,11 @@ const CardWrapper = styled(motion.div)`
   }
 `;
 
-const Card = styled.div`
+const Card = styled.div<{ $compact?: boolean }>`
   position: relative;
-  width: min(78vw, 280px);
+  width: ${({ $compact }) =>
+    $compact ? "min(100%, 220px)" : "min(78vw, 280px)"};
+  margin: ${({ $compact }) => ($compact ? "0 auto" : "0")};
   aspect-ratio: 9 / 16;
   border-radius: 6px;
   overflow: hidden;
@@ -372,7 +638,7 @@ const Card = styled.div`
   cursor: default;
 
   @media (min-width: 768px) {
-    width: 300px;
+    width: ${({ $compact }) => ($compact ? "min(100%, 220px)" : "300px")};
   }
 
   &:hover {
@@ -411,4 +677,76 @@ const ReelTitle = styled.h3`
   letter-spacing: 0.05em;
   text-transform: uppercase;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 230;
+  background: rgba(34, 28, 24, 0.45);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+`;
+
+const ModalShell = styled.div`
+  width: 100%;
+  max-width: min(960px, 100%);
+  max-height: min(90vh, 880px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #faf9f7;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
+`;
+
+const ModalTop = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.35rem) clamp(1rem, 3vw, 1.5rem);
+  border-bottom: 1px solid #eae8e4;
+  flex-shrink: 0;
+`;
+
+const ModalTitle = styled.h2`
+  font-family: "Playfair Display", "Baskerville", serif;
+  font-size: clamp(1.2rem, 4vw, 1.5rem);
+  font-weight: 600;
+  color: #222222;
+  line-height: 1.25;
+  margin: 0;
+`;
+
+const ModalClose = styled.button`
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444444;
+  background: #f5f3f0;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #eae8e4;
+  }
+`;
+
+const ModalGrid = styled.div`
+  overflow-y: auto;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: clamp(1rem, 3vw, 1.5rem);
+  align-content: start;
 `;

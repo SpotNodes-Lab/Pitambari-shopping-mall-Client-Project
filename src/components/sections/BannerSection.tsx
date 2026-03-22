@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import styled from "styled-components";
 
 /** Matches SectionHeader / site section motion */
@@ -15,6 +15,11 @@ import slide2 from "@/assets/mainBanner2.png";
 import slide3 from "@/assets/mainBanner3.png";
 import staticBannerTop from "@/assets/smallBanner1.jpeg";
 import staticBannerBottom from "@/assets/SmallBanner2.jpeg";
+
+const staticBannerHoverTransition = {
+  duration: 0.55,
+  ease: BANNER_EASE,
+};
 
 const slides = [
   {
@@ -44,11 +49,16 @@ const slides = [
 ];
 
 export function BannerSection() {
+  const prefersReducedMotion = useReducedMotion();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: true }, [
     Autoplay({ delay: 5500, stopOnInteraction: true, stopOnMouseEnter: true }),
   ]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const staticBannerWhileHover = prefersReducedMotion
+    ? undefined
+    : { y: -3, transition: staticBannerHoverTransition };
 
   const scrollTo = useCallback(
     (index: number) => emblaApi && emblaApi.scrollTo(index),
@@ -183,6 +193,7 @@ export function BannerSection() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.62, delay: 0.78, ease: BANNER_EASE }}
+            whileHover={staticBannerWhileHover}
           >
             <StaticImage src={staticBannerTop} alt="Bridal Couture" />
             <StaticOverlay>
@@ -197,6 +208,7 @@ export function BannerSection() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.62, delay: 1.02, ease: BANNER_EASE }}
+            whileHover={staticBannerWhileHover}
           >
             <StaticImage src={staticBannerBottom} alt="New Arrivals" />
             <StaticOverlay>
@@ -299,6 +311,25 @@ const SlideImage = styled.img`
   object-fit: cover;
   object-position: center;
   display: block;
+  transform: scale(1) translate3d(0, 0, 0) rotate(0deg);
+  transform-origin: 52% 48%;
+  filter: brightness(1) saturate(1);
+  transition: transform 1.55s cubic-bezier(0.18, 0.82, 0.22, 1),
+    filter 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+
+  ${MainSlider}:hover & {
+    will-change: transform, filter;
+    transform: scale(1.14) translate3d(2.2%, -1.8%, 0) rotate(0.9deg);
+    filter: brightness(1.09) saturate(1.14) contrast(1.03);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    ${MainSlider}:hover & {
+      transform: scale(1) translate3d(0, 0, 0) rotate(0deg);
+      filter: brightness(1) saturate(1);
+    }
+  }
 `;
 
 const SlideOverlay = styled.div`
@@ -316,6 +347,20 @@ const SlideOverlay = styled.div`
   display: flex;
   align-items: center;
   padding: 2.5rem;
+  transition: background 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+
+  ${MainSlider}:hover & {
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.42) 0%,
+      rgba(0, 0, 0, 0.14) 42%,
+      transparent 100%
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
   @media (min-width: 768px) {
     padding: 4rem;
@@ -449,6 +494,17 @@ const StaticBanner = styled(motion.div)`
   overflow: hidden;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
   background-color: #f1f1f1;
+  cursor: pointer;
+  transition: box-shadow 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover {
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: box-shadow 0.2s ease;
+  }
+
   /* Fixed square tiles: layout size is never driven by image intrinsic dimensions */
   aspect-ratio: 1 / 1;
   flex: 0 0 auto;
@@ -467,11 +523,45 @@ const StaticImage = styled.img`
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transition: transform 0.8s ease;
   display: block;
+  transform: scale(1) translate3d(0, 0, 0);
+  transform-origin: 50% 78%;
+  filter: brightness(1) saturate(1);
+  transition: transform 1.5s cubic-bezier(0.18, 0.82, 0.22, 1),
+    filter 1.05s cubic-bezier(0.22, 1, 0.36, 1);
 
   ${StaticBanner}:hover & {
-    transform: scale(1.05);
+    will-change: transform, filter;
+    transform: scale(1.2) translate3d(0, -4.5%, 0);
+    filter: brightness(1.08) saturate(1.18) contrast(1.04);
+  }
+
+  ${StaticBanners} ${StaticBanner}:first-of-type & {
+    transform-origin: 68% 42%;
+  }
+
+  ${StaticBanners} ${StaticBanner}:first-of-type:hover & {
+    transform: scale(1.2) translate3d(3.5%, -3%, 0) rotate(0.65deg);
+  }
+
+  ${StaticBanners} ${StaticBanner}:last-of-type & {
+    transform-origin: 32% 58%;
+  }
+
+  ${StaticBanners} ${StaticBanner}:last-of-type:hover & {
+    transform: scale(1.2) translate3d(-3.5%, -3%, 0) rotate(-0.65deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    transform-origin: center;
+
+    ${StaticBanner}:hover &,
+    ${StaticBanners} ${StaticBanner}:first-of-type:hover &,
+    ${StaticBanners} ${StaticBanner}:last-of-type:hover & {
+      transform: scale(1) translate3d(0, 0, 0);
+      filter: brightness(1) saturate(1);
+    }
   }
 `;
 
@@ -486,6 +576,20 @@ const StaticOverlay = styled.div`
     rgba(0, 0, 0, 0.1) 40%,
     transparent 100%
   );
+  transition: background 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+
+  ${StaticBanner}:hover & {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.52) 0%,
+      rgba(0, 0, 0, 0.14) 45%,
+      rgba(0, 0, 0, 0.02) 100%
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 `;
 
 const StaticContent = styled.div`
@@ -516,21 +620,82 @@ const StaticHeading = styled.h3`
   margin: 0 0 0.5rem;
   padding-bottom: 0.08em;
   letter-spacing: 0.02em;
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    letter-spacing 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+
+  ${StaticBanner}:hover & {
+    transform: translateY(-3px);
+    letter-spacing: 0.06em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    ${StaticBanner}:hover & {
+      transform: none;
+      letter-spacing: 0.02em;
+    }
+  }
 `;
 
 const StaticLink = styled.span`
+  position: relative;
+  display: inline-block;
   font-family: var(--font-label);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   font-weight: 600;
   line-height: 1.35;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-  padding-bottom: 4px;
+  padding-bottom: 6px;
   cursor: pointer;
-  transition: border-color 0.2s ease;
+  transition: letter-spacing 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 
-  &:hover {
-    border-bottom-color: #fff;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.95) 20%,
+      rgba(255, 255, 255, 0.95) 80%,
+      transparent
+    );
+    transform: scaleX(0.55);
+    transform-origin: center;
+    opacity: 0.75;
+    transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.45s ease;
+  }
+
+  ${StaticBanner}:hover & {
+    letter-spacing: 0.22em;
+  }
+
+  ${StaticBanner}:hover &::after {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+  &:hover::after {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.65);
+    padding-bottom: 4px;
+
+    &::after {
+      display: none;
+    }
+
+    ${StaticBanner}:hover & {
+      letter-spacing: 0.15em;
+    }
   }
 `;
