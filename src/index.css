@@ -72,6 +72,12 @@
   --radius-lg: 0.25rem;
   --radius-xl: 0.5rem;
   --radius-full: 0.75rem;
+
+  /* Mobile-first page rhythm (homepage + shared sections) */
+  --page-gutter-x: clamp(1rem, 3.5vw + 0.35rem, 1.75rem);
+  --section-y-tight: clamp(2.25rem, 5vw, 3.25rem);
+  --section-y: clamp(2.75rem, 6vw, 4rem);
+  --section-y-loose: clamp(3rem, 8vw, 5.5rem);
 }
 
 body {

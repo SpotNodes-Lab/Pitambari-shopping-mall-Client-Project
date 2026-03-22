@@ -54,21 +54,21 @@ export const HomeService = {
                 "https://lh3.googleusercontent.com/aida-public/AB6AXuDvtL3yCSM-lBkLDOdJqMhngmB00bWiTIBPeDSdgXNpO0dZk_GWbimdjU5IdrpqR3dTj5tt7Oxka6G-MbyzL2QzfzpzThdr0SFUFKorFLzoGwq1-tvEwA8k34g-gkrG_JlkOGgLxcc6UFIiWaSanLkz7nyBuyKo2j9EFkr3UAqOs8KfMMgoTpwWARVHCw-qkFkNGPhwz4cJxDNE4G1e97kgLW4Rk53DKE7eWRAvl2wTl5G5bI-loRps4X2fJz4JVtsKKsB0bc0BHKI",
             },
             {
-              id: "bridal",
+              id: "kids-festive",
               title: "Children and Festive",
               subtitle: "Discover Masterpieces",
               image:
                 "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/21.webp",
             },
             {
-              id: "sarees",
+              id: "modern-collections",
               title: "Modern Collections",
               subtitle: "Shop Classics",
               image:
                 "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/16.webp",
             },
             {
-              id: "sarees",
+              id: "summer-festive",
               title: "Summer Festive Edit",
               subtitle: "Shop Classics",
               image:

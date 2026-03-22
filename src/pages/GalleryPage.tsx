@@ -1,8 +1,6 @@
 import { GALLERY_IMAGES } from "@/constants";
 import { PageBanner } from "@/components/shared/PageBanner";
 import { GalleryGridSection } from "@/components/sections/GalleryGridSection";
-import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
-import { TESTIMONIALS } from "@/constants";
 import { useMemo, useState } from "react";
 import { ImageModal } from "@/components/shared/ImageModal";
 

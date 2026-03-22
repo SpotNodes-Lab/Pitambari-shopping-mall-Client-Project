@@ -87,8 +87,8 @@ export function ValuePropsSection() {
 // --- Styled Components ---
 
 const Section = styled.section`
-  padding-top: 4rem;
-  padding-bottom: 3rem;
+  padding-top: var(--section-y);
+  padding-bottom: var(--section-y-tight);
 
   /* 1. A warm, luxurious ivory/off-white base color */
   background-color: #fcfbf9;
@@ -102,17 +102,18 @@ const Container = styled.div`
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: calc(var(--page-gutter-x) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--page-gutter-x) + env(safe-area-inset-right, 0px));
 `;
 
 const Grid = styled(motion.div)`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2.5rem;
+  gap: clamp(1.35rem, 4vw, 2.5rem);
 
   @media (min-width: 640px) {
     grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1.5rem, 3vw, 2rem);
   }
 
   @media (min-width: 1024px) {
@@ -134,8 +135,8 @@ const Card = styled.div`
 `;
 
 const IconBadge = styled.div`
-  width: 5rem;
-  height: 5rem;
+  width: clamp(4.25rem, 12vw, 5rem);
+  height: clamp(4.25rem, 12vw, 5rem);
   border-radius: 50%;
 
   /* Keeping the badge pure white so it stands out against the patterned ivory background */
@@ -144,22 +145,31 @@ const IconBadge = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: clamp(0.85rem, 2.5vw, 1.25rem);
   color: #333333;
+
+  svg {
+    width: clamp(1.15rem, 4vw, 1.5rem);
+    height: clamp(1.15rem, 4vw, 1.5rem);
+  }
 `;
 
 const Title = styled.h3`
   font-family: var(--font-headline);
-  font-size: 1.05rem;
+  font-size: clamp(0.98rem, 2.8vw, 1.05rem);
   font-weight: 700;
   color: #222222;
   margin-bottom: 0.4rem;
   letter-spacing: 0.02em;
+  max-width: 18rem;
 `;
 
 const Subtitle = styled.p`
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 2.2vw, 0.85rem);
   color: #777777;
   font-weight: 400;
+  max-width: 17rem;
+  margin: 0 auto;
+  line-height: 1.5;
 `;

@@ -20,12 +20,24 @@ interface LatestArrivalsProps {
 export function LatestArrivals({ data, isLoading }: LatestArrivalsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const scrollStep = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return 300;
+    return Math.round(Math.min(el.clientWidth * 0.82, 340));
+  };
+
   const scrollLeft = () => {
-    scrollContainerRef.current?.scrollBy({ left: -350, behavior: "smooth" });
+    scrollContainerRef.current?.scrollBy({
+      left: -scrollStep(),
+      behavior: "smooth",
+    });
   };
 
   const scrollRight = () => {
-    scrollContainerRef.current?.scrollBy({ left: 350, behavior: "smooth" });
+    scrollContainerRef.current?.scrollBy({
+      left: scrollStep(),
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -123,8 +135,8 @@ export function LatestArrivals({ data, isLoading }: LatestArrivalsProps) {
 // --- Styled Components ---
 
 const Section = styled.section`
-  padding-top: 2rem;
-  padding-bottom: 4rem;
+  padding-top: var(--section-y-tight);
+  padding-bottom: var(--section-y);
   background-color: #ffffff; /* Crisp white to contrast with previous ivory sections */
   overflow: hidden;
 `;
@@ -133,8 +145,8 @@ const Container = styled.div`
   max-width: 1440px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: calc(var(--page-gutter-x) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--page-gutter-x) + env(safe-area-inset-right, 0px));
 `;
 const HeaderRow = styled(motion.div)`
   display: flex;
@@ -184,8 +196,9 @@ const Title = styled.h2`
   font-family: var(--font-headline);
   font-weight: 500;
   color: #222222;
-  font-size: 2.5rem;
+  font-size: clamp(1.85rem, 5.5vw, 2.5rem);
   letter-spacing: -0.01em;
+  line-height: 1.1;
 
   .serif-italic {
     font-family: "Playfair Display", "Baskerville", serif;
@@ -216,8 +229,8 @@ const HeaderRight = styled.div`
 const Subtitle = styled.p`
   font-family: var(--font-body);
   color: #666666;
-  font-size: 1rem;
-  max-width: 350px;
+  font-size: clamp(0.9rem, 2.4vw, 1rem);
+  max-width: 26rem;
   line-height: 1.6;
 `;
 
@@ -251,9 +264,13 @@ const ScrollButton = styled.button`
 /* THE CAROUSEL */
 const Carousel = styled.div`
   display: flex;
-  gap: 2rem;
+  gap: clamp(1rem, 3vw, 2rem);
   overflow-x: auto;
-  padding-bottom: 2.5rem;
+  padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  margin-left: calc(-1 * (var(--page-gutter-x) + env(safe-area-inset-left, 0px)));
+  margin-right: calc(-1 * (var(--page-gutter-x) + env(safe-area-inset-right, 0px)));
+  padding-left: calc(var(--page-gutter-x) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--page-gutter-x) + env(safe-area-inset-right, 0px));
 
   /* Smooth snapping for mobile */
   scroll-snap-type: x mandatory;
@@ -263,15 +280,22 @@ const Carousel = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+
+  @media (min-width: 768px) {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
 `;
 
 const CarouselItem = styled(motion.div)`
   flex-shrink: 0;
   scroll-snap-align: start;
-  width: 280px; /* Fixed width so cards don't stretch */
+  width: min(78vw, 280px);
 
   @media (min-width: 768px) {
-    width: 320px; /* Slightly larger on desktop */
+    width: 320px;
   }
 `;
 
@@ -349,7 +373,7 @@ const LoadingRow = styled.div`
 `;
 
 const LoadingCard = styled.div`
-  min-width: 280px;
+  min-width: min(78vw, 280px);
 
   @media (min-width: 768px) {
     min-width: 320px;

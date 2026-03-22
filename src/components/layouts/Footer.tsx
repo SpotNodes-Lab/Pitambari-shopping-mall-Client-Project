@@ -171,7 +171,7 @@ export function Footer() {
       <FooterGrid>
         {/* Brand Column */}
         <Column>
-          <BrandTitle>Digital Atelier</BrandTitle>
+          <BrandTitle>Pitambari Shopping Mall</BrandTitle>
           <Paragraph>
             Redefining luxury through tradition. Every stitch tells a story of
             heritage, reimagined for the contemporary soul.
@@ -254,8 +254,8 @@ export function Footer() {
       </FooterGrid>
 
       <FooterBottom>
-        © {new Date().getFullYear()} Digital Atelier (Shree Dholi Sati). All
-        Rights Reserved.
+        © {new Date().getFullYear()} Pitambari Shopping Mall. All Rights
+        Reserved.
       </FooterBottom>
     </FooterRoot>
   )

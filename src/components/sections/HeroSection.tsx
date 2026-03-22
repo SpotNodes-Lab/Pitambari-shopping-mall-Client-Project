@@ -148,31 +148,39 @@ export function HeroSection({ data, isLoading }: HeroSectionProps) {
 
 const Section = styled.section<{ $isLoading?: boolean }>`
   min-height: 100vh;
-  padding-top: 2rem;
-  padding-bottom: 4rem;
+  padding-top: clamp(0.75rem, 2.5vw, 2rem);
+  padding-bottom: clamp(2rem, 6vw, 4rem);
   background-color: var(--color-surface-dim);
   display: flex;
   align-items: center;
   overflow: hidden;
+
+  @media (max-width: 1023px) {
+    min-height: auto;
+    align-items: flex-start;
+  }
 `;
 
 const Container = styled.div`
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding-left: calc(var(--page-gutter-x) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--page-gutter-x) + env(safe-area-inset-right, 0px));
   display: grid;
   grid-template-columns: 1fr;
-  gap: 4rem;
+  gap: clamp(1.75rem, 5vw, 4rem);
   align-items: center;
 
   @media (min-width: 1024px) {
     grid-template-columns: 1fr 1.2fr;
-    padding: 0 4rem;
+    padding-left: calc(4rem + env(safe-area-inset-left, 0px));
+    padding-right: calc(4rem + env(safe-area-inset-right, 0px));
   }
 `;
 
 const ContentWrapper = styled(motion.div)`
   max-width: 540px;
+  width: 100%;
   z-index: 10;
   position: relative;
 `;
@@ -190,25 +198,25 @@ const BackgroundMandala = styled.div`
 `;
 
 const EyebrowContainer = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
 `;
 
 const Eyebrow = styled.span`
   font-family: var(--font-label);
   text-transform: uppercase;
-  letter-spacing: 0.25em;
-  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  font-size: clamp(0.7rem, 2vw, 0.8rem);
   font-weight: 600;
   color: var(--color-primary);
 `;
 
 const Title = styled.h1`
   font-family: var(--font-headline);
-  font-size: 3.5rem;
+  font-size: clamp(2.125rem, 6.5vw + 0.5rem, 3.5rem);
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.12;
   color: var(--color-on-surface);
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
   letter-spacing: -0.01em;
 
   .serif-italic {
@@ -229,17 +237,17 @@ const Title = styled.h1`
 
 const Description = styled.p`
   font-family: var(--font-body);
-  font-size: 1.125rem;
-  line-height: 1.7;
+  font-size: clamp(1rem, 2.5vw, 1.125rem);
+  line-height: 1.65;
   color: color-mix(in srgb, var(--color-on-surface) 75%, transparent);
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
 `;
 
 const DecorativeDivider = styled.div`
   width: 50px;
   height: 10px;
   color: var(--color-primary);
-  margin-bottom: 2rem;
+  margin-bottom: clamp(1.25rem, 4vw, 2rem);
   opacity: 0.6;
 `;
 
@@ -247,7 +255,7 @@ const DecorativeDivider = styled.div`
 const ShowcaseGrid = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: clamp(1rem, 3vw, 1.5rem);
 
   @media (min-width: 640px) {
     flex-direction: row;
@@ -306,11 +314,17 @@ const ImageComposition = styled.div`
   justify-content: flex-end;
   align-items: center;
   height: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: min(100%, 420px);
 
   @media (max-width: 1024px) {
     height: auto;
+    min-height: clamp(280px, 72vw, 420px);
     justify-content: center;
-    padding-top: 2rem;
+    padding-top: clamp(0.5rem, 2vw, 2rem);
+    padding-bottom: clamp(2rem, 8vw, 3rem);
+    max-width: min(100%, 380px);
   }
 `;
 
@@ -333,7 +347,9 @@ const MainImageWrapper = styled(motion.div)`
   }
 
   @media (max-width: 1024px) {
-    max-width: 350px;
+    max-width: min(100%, 320px);
+    right: 0;
+    margin: 0 auto;
   }
 `;
 
@@ -358,9 +374,15 @@ const SecondaryImageWrapper = styled(motion.div)`
   }
 
   @media (max-width: 1024px) {
-    left: 0;
-    bottom: -10%;
-    max-width: 200px;
+    left: clamp(0.25rem, 2vw, 0.5rem);
+    bottom: -0.65rem;
+    max-width: min(42vw, 200px);
+    border-width: 6px;
+  }
+
+  @media (max-width: 380px) {
+    max-width: min(40vw, 168px);
+    border-width: 5px;
   }
 `;
 
@@ -374,4 +396,11 @@ const AccentCircle = styled(motion.div)`
   border: 2px dashed color-mix(in srgb, var(--color-primary) 50%, transparent);
   opacity: 0.5;
   z-index: -1;
+
+  @media (max-width: 1024px) {
+    width: clamp(72px, 22vw, 120px);
+    height: clamp(72px, 22vw, 120px);
+    left: 2%;
+    top: 2%;
+  }
 `;

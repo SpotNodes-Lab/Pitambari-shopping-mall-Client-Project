@@ -34,7 +34,7 @@ export function ContactFormSection() {
 
   const contactInfo = useMemo(
     () => [
-      { label: "Email", value: "hello@dholisati.com" },
+      { label: "Email", value: "hello@pitambarishoppingmall.com" },
       { label: "Phone", value: "+91 90000 00000" },
       { label: "Hours", value: "10:00 AM - 7:00 PM" },
     ],

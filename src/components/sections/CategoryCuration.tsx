@@ -87,8 +87,8 @@ export function CategoryCuration({ data, isLoading }: CategoryCurationProps) {
 // --- Styled Components ---
 
 const Section = styled.section`
-  padding-top: 4rem;
-  padding-bottom: 6rem;
+  padding-top: var(--section-y);
+  padding-bottom: var(--section-y-loose);
   background-color: #fdfdfc; /* Clean, very soft off-white */
   display: flex;
   align-items: center;
@@ -99,32 +99,36 @@ const Container = styled.div`
   max-width: 1250px; /* Constrains width so squares don't get overly massive */
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: calc(var(--page-gutter-x) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--page-gutter-x) + env(safe-area-inset-right, 0px));
 `;
 
 const Header = styled(motion.div)`
   text-align: center;
-  margin-bottom: 3.5rem;
+  margin-bottom: clamp(1.75rem, 5vw, 3.5rem);
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 clamp(0rem, 2vw, 0.5rem);
 `;
 
 const Title = styled.h2`
   font-family: "Playfair Display", "Baskerville", serif; /* Elegant styling */
-  font-size: 2.25rem;
+  font-size: clamp(1.65rem, 5vw, 2.25rem);
   font-weight: 500;
   color: #222222;
   margin-bottom: 0.5rem;
   letter-spacing: 0.02em;
+  line-height: 1.2;
 `;
 
 const Subtitle = styled.p`
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
   color: #666666;
-  max-width: 500px;
+  max-width: 32rem;
+  line-height: 1.55;
+  padding: 0 0.25rem;
 `;
 
 /* THE UNIFORM SQUARE GRID:
@@ -133,7 +137,7 @@ const Subtitle = styled.p`
 */
 const Grid = styled.div`
   display: grid;
-  gap: 1.5rem;
+  gap: clamp(0.65rem, 2.5vw, 1.5rem);
   grid-template-columns: repeat(2, 1fr); /* 2 items per row on mobile */
 
   @media (min-width: 768px) {
@@ -188,24 +192,30 @@ const TextOverlay = styled.div`
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 1.5rem;
+  padding: clamp(0.65rem, 3.5vw, 1.5rem);
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
   pointer-events: none;
 
   h4 {
     font-family: var(--font-headline);
-    font-size: 1.15rem;
+    font-size: clamp(0.78rem, 2.8vw, 1.15rem);
     font-weight: 700;
     color: #ffffff;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
+    line-height: 1.25;
   }
 
   p {
     font-family: var(--font-body);
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: clamp(0.68rem, 2.2vw, 0.85rem);
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 `;

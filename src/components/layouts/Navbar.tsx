@@ -50,8 +50,8 @@ export function Navbar() {
             </MobileMenuBtn>
 
             <Logo to="/">
-              <span className="brand-name">DHOLI SATI</span>
-              <span className="brand-tagline">Retail Mall India</span>
+              <span className="brand-name">PITAMBARI</span>
+              <span className="brand-tagline">Shopping Mall</span>
             </Logo>
 
             {/* Mobile Location Icon to balance the hamburger menu */}

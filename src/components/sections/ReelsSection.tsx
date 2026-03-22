@@ -51,7 +51,7 @@ export function ReelsSection() {
         >
           <EyebrowWrapper>
             <DecorativeDiamond />
-            <Eyebrow>@DholiSatiRetail</Eyebrow>
+            <Eyebrow>@PitambariShoppingMall</Eyebrow>
           </EyebrowWrapper>
           <Title>
             The Instagram <span className="serif-italic">Edit</span>
@@ -139,7 +139,8 @@ function ReelCard({ reel, index }: { reel: Reel; index: number }) {
 // --- Styled Components ---
 
 const Section = styled.section`
-  padding: 6rem 0;
+  padding-top: var(--section-y-loose);
+  padding-bottom: var(--section-y-loose);
   background-color: #faf9f7; /* Very soft ivory */
   position: relative;
   overflow: hidden;
@@ -147,25 +148,30 @@ const Section = styled.section`
 
 const GiantWatermark = styled.div`
   position: absolute;
-  top: 10%;
-  left: -5%;
+  top: 8%;
+  left: -8%;
   font-family: "Playfair Display", serif;
-  font-size: 15vw;
+  font-size: clamp(3.25rem, 14vw, 8.5rem);
   font-weight: 900;
   color: var(--color-primary);
   opacity: 0.03; /* Barely visible, adds texture */
   line-height: 1;
   pointer-events: none;
   white-space: nowrap;
+
+  @media (max-width: 480px) {
+    opacity: 0.02;
+  }
 `;
 
 const Container = styled.div`
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding-left: calc(var(--page-gutter-x) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--page-gutter-x) + env(safe-area-inset-right, 0px));
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: clamp(1.75rem, 5vw, 3rem);
 
   @media (min-width: 1024px) {
     flex-direction: row;
@@ -179,6 +185,7 @@ const LeftPanel = styled(motion.div)`
   flex-direction: column;
   align-items: flex-start;
   z-index: 2;
+  max-width: 100%;
 
   @media (min-width: 1024px) {
     flex: 0 0 35%; /* Takes up 35% of the screen */
@@ -213,7 +220,7 @@ const Eyebrow = styled.span`
 
 const Title = styled.h2`
   font-family: var(--font-headline);
-  font-size: 3rem;
+  font-size: clamp(1.85rem, 6vw, 3rem);
   font-weight: 800;
   color: #222222;
   margin-bottom: 1rem;
@@ -232,21 +239,22 @@ const Title = styled.h2`
 const Subtitle = styled.p`
   font-family: var(--font-body);
   color: #666666;
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
   line-height: 1.6;
-  max-width: 350px;
-  margin-bottom: 2.5rem;
+  max-width: 26rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
 `;
 
 const FollowButton = styled.a`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.85rem 1.75rem;
+  padding: clamp(0.75rem, 2.2vw, 0.85rem) clamp(1.25rem, 4vw, 1.75rem);
   border: 1px solid #dcdcdc;
   border-radius: 4px;
   font-family: var(--font-headline);
-  font-size: 0.85rem;
+  font-size: clamp(0.78rem, 2.2vw, 0.85rem);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -254,6 +262,14 @@ const FollowButton = styled.a`
   text-decoration: none;
   background: transparent;
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 20rem;
+  box-sizing: border-box;
+
+  @media (min-width: 1024px) {
+    width: auto;
+    max-width: none;
+  }
 
   &:hover {
     background-color: var(--color-primary);
@@ -267,7 +283,7 @@ const FollowButton = styled.a`
 const RightPanel = styled.div`
   width: 100%;
   overflow-x: auto;
-  padding-bottom: 2rem;
+  padding-bottom: clamp(1.25rem, 4vw, 2rem);
 
   @media (min-width: 1024px) {
     flex: 1; /* Takes the remaining 65% of screen */
@@ -287,11 +303,9 @@ const RightPanel = styled.div`
 
 const ReelsTrack = styled.div`
   display: flex;
-  gap: 2rem;
+  gap: clamp(1rem, 3vw, 2rem);
   width: max-content;
-
-  /* Adds breathing room to the right side of the scroll */
-  padding-right: 2rem;
+  padding-right: clamp(1rem, 4vw, 2rem);
 `;
 
 const CardWrapper = styled(motion.div)`
@@ -308,7 +322,7 @@ const CardWrapper = styled(motion.div)`
 
 const Card = styled.div`
   position: relative;
-  width: 280px;
+  width: min(78vw, 280px);
   aspect-ratio: 9 / 16;
   border-radius: 6px;
   overflow: hidden;

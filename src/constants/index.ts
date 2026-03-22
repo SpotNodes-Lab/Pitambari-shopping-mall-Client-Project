@@ -40,7 +40,7 @@ export const LATEST_ARRIVALS = [
       "https://lh3.googleusercontent.com/aida-public/AB6AXuBrbTy4WP-i0WhMA_MVUqdUq78kQfdnIr3Eg-xhzcEVlQlhNcS32-Mez-tnKpSBIl5VAIYDYW2PoXCLBoCUsJA7ye9RoGEU2FZhcnp_OEPgc_6mifwvT3AyQl1D0uR04jOMFl248ZapJT5hCUj4hqEqrh04Juh5E65FsFyK7yICv6GSmInBGcL9urZz_8zNRcBKfmIkuGvZ8dNopM1etd2zyF1e13xQq9Nuq6h_29i6jIyDW620w-g11YiIW3yqJG6nmbHbcvUqtnw",
   },
   {
-    id: 1,
+    id: 5,
     name: "Aurelia Silk Set",
     category: "Hand-woven Chanderi",
     price: "₹24,999",
@@ -92,14 +92,14 @@ export const ATELIER_STORIES = [
 export const SHOWROOMS = [
   {
     id: "ashiyana",
-    title: "Dholi Sati Retail Mall India - Ashiana Diha",
+    title: "Pitambari Shopping Mall - Ashiana Diha",
     image:
       "https://www.shutterstock.com/image-illustration/store-facade-large-storefronts-wellilluminated-600nw-2301241861.jpg",
     cta: "Know More",
   },
   {
     id: "patna",
-    title: "Dholi Sati Retail Mall India - Patna City",
+    title: "Pitambari Shopping Mall - Patna City",
     image:
       "https://www.shutterstock.com/image-illustration/store-facade-large-storefronts-wellilluminated-600nw-2301241861.jpg",
     cta: "Know More",

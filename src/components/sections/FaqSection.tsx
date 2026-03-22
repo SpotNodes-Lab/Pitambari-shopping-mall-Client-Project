@@ -6,22 +6,26 @@ import { Plus, Minus } from "lucide-react";
 // Real data based on your uploaded image, with premium offline-focused answers
 const faqData = [
   {
-    question: "Where is Shree Dholi Sati Retail Mall located?",
+    id: "locations",
+    question: "Where is Pitambari Shopping Mall located?",
     answer:
       "We have multiple flagship showrooms located across India, including our prime locations in Ashiana Digha, Patna City, Aurangabad, and Raxaul. Please visit our Showrooms page for exact directions.",
   },
   {
-    question: "What products are available at Dholi Sati?",
+    id: "products",
+    question: "What products are available at Pitambari Shopping Mall?",
     answer:
       "We offer an exquisite, curated range of ethnic and festive wear. This includes authentic bridal lehengas, designer sarees, premium menswear (like Sherwanis and Kurta sets), and festive clothing for children.",
   },
   {
-    question: "Why should I shop at Shree Dholi Sati Retail Mall?",
+    id: "why-shop",
+    question: "Why should I shop at Pitambari Shopping Mall?",
     answer:
       "With over 80 years of legacy, we provide an unparalleled in-store experience. You can expect authentic craftsmanship, spacious trial rooms, expert personal styling, and bespoke alterations to ensure your perfect fit.",
   },
   {
-    question: "Can I find clothing for the whole family at Dholi Sati?",
+    id: "family",
+    question: "Can I find clothing for the whole family at Pitambari Shopping Mall?",
     answer:
       "Absolutely. We are a complete family fashion destination. Our multi-level showrooms feature dedicated floors for women's, men's, and children's collections, ensuring everyone finds their perfect outfit under one roof.",
   },
@@ -65,7 +69,7 @@ export function FaqSection() {
             {faqData.map((faq, index) => {
               const isOpen = openIndex === index;
               return (
-                <FaqItem key={index}>
+                <FaqItem key={faq.id}>
                   <FaqQuestion
                     onClick={() => toggleFaq(index)}
                     $isOpen={isOpen}
@@ -106,8 +110,8 @@ export function FaqSection() {
 // --- Styled Components ---
 
 const Section = styled.section`
-  padding-top: 6rem;
-  padding-bottom: 6rem;
+  padding-top: var(--section-y-loose);
+  padding-bottom: var(--section-y-loose);
   background-color: #ffffff; /* Crisp, clean background */
 `;
 
@@ -115,14 +119,14 @@ const Container = styled.div`
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: calc(var(--page-gutter-x) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--page-gutter-x) + env(safe-area-inset-right, 0px));
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 4rem;
+  gap: clamp(1.75rem, 5vw, 4rem);
 
   @media (min-width: 900px) {
     grid-template-columns: 1fr 1.5fr; /* Gives slightly more room to the questions */
@@ -133,9 +137,11 @@ const Grid = styled.div`
 const LeftColumn = styled(motion.div)`
   display: flex;
   flex-direction: column;
-  /* Makes the title stick to the top as you scroll the questions on desktop */
-  position: sticky;
-  top: 8rem;
+
+  @media (min-width: 900px) {
+    position: sticky;
+    top: 8rem;
+  }
 `;
 
 const Eyebrow = styled.span`
@@ -150,7 +156,7 @@ const Eyebrow = styled.span`
 
 const Title = styled.h2`
   font-family: "Playfair Display", "Baskerville", serif; /* Elegant styling */
-  font-size: 2.5rem;
+  font-size: clamp(1.65rem, 5vw, 2.5rem);
   font-weight: 500;
   color: #222222;
   margin-bottom: 1rem;
@@ -161,16 +167,16 @@ const DecorativeLine = styled.div`
   width: 40px;
   height: 2px;
   background-color: var(--color-primary);
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
   opacity: 0.7;
 `;
 
 const Subtitle = styled.p`
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
   color: #666666;
   line-height: 1.6;
-  max-width: 350px;
+  max-width: 36rem;
 `;
 
 const RightColumn = styled(motion.div)`
@@ -195,17 +201,18 @@ const FaqQuestion = styled.button<{ $isOpen: boolean }>`
   text-align: left;
   background: transparent;
   border: none;
-  padding: 1.75rem 0;
+  padding: clamp(1.1rem, 3.5vw, 1.75rem) 0;
   cursor: pointer;
+  gap: 0.75rem;
 
   span {
     font-family: var(--font-headline);
-    font-size: 1.1rem;
+    font-size: clamp(0.95rem, 2.8vw, 1.1rem);
     font-weight: 700;
     /* Softens the text slightly unless it's open */
     color: ${({ $isOpen }) => ($isOpen ? "var(--color-primary)" : "#222222")};
     transition: color 0.3s ease;
-    padding-right: 2rem;
+    padding-right: clamp(0.75rem, 3vw, 2rem);
     line-height: 1.4;
   }
 
@@ -227,10 +234,10 @@ const FaqAnswerWrapper = styled(motion.div)`
 `;
 
 const FaqAnswerText = styled.div`
-  padding-bottom: 1.75rem;
+  padding-bottom: clamp(1.1rem, 3vw, 1.75rem);
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: clamp(0.88rem, 2.4vw, 0.95rem);
   color: #555555;
   line-height: 1.7;
-  padding-right: 2rem; /* Matches the padding of the question to keep text aligned */
+  padding-right: clamp(0.75rem, 3vw, 2rem);
 `;

@@ -23,7 +23,7 @@ const fallbackData: Testimonial[] = [
     name: "Vikram Singh",
     title: "Loyal Patron",
     quote:
-      "My family has been shopping at Dholi Sati for three generations. Their sherwani craftsmanship is unmatched, and the fabric quality speaks for itself. It is our go-to for every festival.",
+      "My family has been shopping at Pitambari Shopping Mall for three generations. Their sherwani craftsmanship is unmatched, and the fabric quality speaks for itself. It is our go-to for every festival.",
   },
   {
     id: 3,
@@ -95,9 +95,8 @@ export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
 // --- Styled Components ---
 
 const Section = styled.section`
-  /* Reduced from 6rem to 4rem to pull it closer to the sections above and below */
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+  padding-top: var(--section-y);
+  padding-bottom: var(--section-y);
   background-color: #fcfbf9;
   position: relative;
 `;
@@ -106,17 +105,17 @@ const Container = styled.div`
   max-width: 1250px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: calc(var(--page-gutter-x) + env(safe-area-inset-left, 0px));
+  padding-right: calc(var(--page-gutter-x) + env(safe-area-inset-right, 0px));
 `;
 
 const Header = styled(motion.div)`
   text-align: center;
-  /* Reduced from 4rem to 2.5rem to pull the cards closer to the title */
-  margin-bottom: 2.5rem;
+  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 clamp(0rem, 2vw, 0.5rem);
 `;
 
 const EyebrowWrapper = styled.div`
@@ -145,9 +144,9 @@ const Eyebrow = styled.span`
 
 const Title = styled.h2`
   font-family: "Playfair Display", "Baskerville", serif;
-  font-size: 2.25rem;
+  font-size: clamp(1.65rem, 4.8vw, 2.25rem);
   color: #222222;
-  margin-bottom: 0.75rem; /* Tighter gap */
+  margin-bottom: 0.75rem;
   line-height: 1.2;
   font-weight: 500;
 
@@ -158,22 +157,22 @@ const Title = styled.h2`
 
 const Subtitle = styled.p`
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 2.4vw, 1rem);
   color: #666666;
-  max-width: 500px;
+  max-width: 32rem;
+  line-height: 1.55;
 `;
 
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem; /* Tighter gap between cards on mobile */
+  gap: clamp(1.15rem, 3vw, 1.5rem);
 
   @media (min-width: 768px) {
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem; /* Tighter gap between cards on desktop */
+    gap: 1.5rem;
     align-items: start;
 
-    /* Reduced the "stagger" effect from 2.5rem to 1.5rem so it doesn't push the middle card down too far */
     & > div:nth-child(2) {
       margin-top: 1.5rem;
     }
@@ -183,17 +182,14 @@ const Grid = styled.div`
 const Card = styled(motion.div)`
   background-color: #ffffff;
   border-radius: 4px;
-  /* Reduced padding inside the card to make it more compact */
-  padding: 2rem 2rem;
+  padding: clamp(1.35rem, 4vw, 2rem);
   position: relative;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
-  /* Reduced minimum height so cards hug the text more tightly */
-  min-height: 280px;
+  min-height: clamp(240px, 42vw, 280px);
   transition:
     transform 0.4s ease,
     box-shadow 0.4s ease;
@@ -206,10 +202,10 @@ const Card = styled(motion.div)`
 
 const QuoteWatermark = styled.div`
   position: absolute;
-  top: -1.5rem;
-  left: 0.5rem;
+  top: -1.25rem;
+  left: 0.35rem;
   font-family: "Playfair Display", serif;
-  font-size: 8rem; /* Slightly smaller watermark to fit the smaller card */
+  font-size: clamp(4.5rem, 18vw, 8rem);
   font-weight: 900;
   color: var(--color-primary);
   opacity: 0.04;
@@ -220,17 +216,17 @@ const QuoteWatermark = styled.div`
 const Stars = styled.div`
   display: flex;
   gap: 0.25rem;
-  margin-bottom: 1rem; /* Tighter gap */
+  margin-bottom: clamp(0.75rem, 2.5vw, 1rem);
   z-index: 1;
 `;
 
 const Quote = styled.p`
   font-family: "Playfair Display", "Baskerville", serif;
   font-style: italic;
-  font-size: 1.05rem;
+  font-size: clamp(0.95rem, 2.6vw, 1.05rem);
   color: #444444;
-  line-height: 1.6; /* Tighter line height */
-  margin-bottom: 1.5rem; /* Tighter gap */
+  line-height: 1.58;
+  margin-bottom: clamp(1.1rem, 3vw, 1.5rem);
   flex-grow: 1;
   z-index: 1;
 `;
