@@ -1,8 +1,11 @@
+import pitambariBusinessThumb from "@/assets/PitambariJweles/Pitambari Image.png";
+import virasatBusinessThumb from "@/assets/virasat/Virasat Image.png";
+
 export const NAV_LINKS = [
   { name: "Home", href: "/", active: true },
   { name: "About us", href: "/about", active: false },
   { name: "Gallery", href: "/gallery", active: false },
-  { name: "Showrooms", href: "/showrooms", active: false },
+  { name: "Our Businesses", href: "/showrooms", active: false },
   { name: "Contact", href: "/contact", active: false },
 ];
 
@@ -91,18 +94,18 @@ export const ATELIER_STORIES = [
 
 export const SHOWROOMS = [
   {
-    id: "ashiyana",
-    title: "Pitambari Shopping Mall - Ashiana Diha",
-    image:
-      "https://www.shutterstock.com/image-illustration/store-facade-large-storefronts-wellilluminated-600nw-2301241861.jpg",
+    id: "pitambari-jewel-studio",
+    title: "PITAMBARI JEWEL STUDIO",
+    image: pitambariBusinessThumb,
     cta: "Know More",
+    detailsPath: "/showrooms/pitambari-jewel-studio",
   },
   {
-    id: "patna",
-    title: "Pitambari Shopping Mall - Patna City",
-    image:
-      "https://www.shutterstock.com/image-illustration/store-facade-large-storefronts-wellilluminated-600nw-2301241861.jpg",
+    id: "virasat",
+    title: "VIRASAT",
+    image: virasatBusinessThumb,
     cta: "Know More",
+    detailsPath: "/showrooms/virasat",
   },
 ];
 
@@ -235,3 +238,37 @@ export const GALLERY_IMAGES = [
     alt: "Festive Kids Wear",
   },
 ];
+
+/** Hero banner slideshow on the Gallery page (above the main grid). */
+export const GALLERY_HERO_SLIDES = [
+  {
+    id: "hero-01",
+    image:
+      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/01.webp",
+    alt: "Pitambari collection spotlight 1",
+  },
+  {
+    id: "hero-02",
+    image:
+      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/02.webp",
+    alt: "Pitambari collection spotlight 2",
+  },
+  {
+    id: "hero-03",
+    image:
+      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/03.webp",
+    alt: "Pitambari collection spotlight 3",
+  },
+  {
+    id: "hero-04",
+    image:
+      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/04.webp",
+    alt: "Pitambari collection spotlight 4",
+  },
+  {
+    id: "hero-05",
+    image:
+      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/05.webp",
+    alt: "Pitambari collection spotlight 5",
+  },
+] as const;

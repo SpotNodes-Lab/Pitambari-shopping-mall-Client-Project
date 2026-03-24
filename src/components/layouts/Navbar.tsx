@@ -53,7 +53,6 @@ export function Navbar() {
 
             <Logo to="/">
               <span className="brand-name">PITAMBARI</span>
-              <span className="brand-tagline">Shopping Mall</span>
             </Logo>
 
             {/* Mobile Location Icon to balance the hamburger menu */}

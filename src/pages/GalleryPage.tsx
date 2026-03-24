@@ -1,5 +1,6 @@
 import { GALLERY_IMAGES } from "@/constants";
 import { PageBanner } from "@/components/shared/PageBanner";
+import { GalleryHeroSlideshow } from "@/components/sections/GalleryHeroSlideshow";
 import { GalleryGridSection } from "@/components/sections/GalleryGridSection";
 import { useMemo, useState } from "react";
 import { ImageModal } from "@/components/shared/ImageModal";
@@ -33,6 +34,7 @@ export function GalleryPage() {
   return (
     <>
       <PageBanner title="Gallery" breadcrumb="Home > Gallery" />
+      <GalleryHeroSlideshow />
       <GalleryGridSection images={GALLERY_IMAGES} onSelect={setSelectedIndex} />
 
       {modalImage && (

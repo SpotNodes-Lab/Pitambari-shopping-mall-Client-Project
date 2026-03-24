@@ -49,7 +49,7 @@ export function GalleryGridSection({
 // --- Styled Components ---
 
 const Section = styled.section`
-  padding-top: 4rem;
+  padding-top: clamp(2rem, 4vw, 3rem);
   padding-bottom: 8rem;
   background-color: #ffffff; /* Crisp white for maximum contrast */
 `;

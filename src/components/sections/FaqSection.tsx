@@ -7,25 +7,25 @@ import { Plus, Minus } from "lucide-react";
 const faqData = [
   {
     id: "locations",
-    question: "Where is Pitambari Shopping Mall located?",
+    question: "Where is Pitambari located?",
     answer:
       "We have multiple flagship showrooms located across India, including our prime locations in Ashiana Digha, Patna City, Aurangabad, and Raxaul. Please visit our Showrooms page for exact directions.",
   },
   {
     id: "products",
-    question: "What products are available at Pitambari Shopping Mall?",
+    question: "What products are available at Pitambari?",
     answer:
       "We offer an exquisite, curated range of ethnic and festive wear. This includes authentic bridal lehengas, designer sarees, premium menswear (like Sherwanis and Kurta sets), and festive clothing for children.",
   },
   {
     id: "why-shop",
-    question: "Why should I shop at Pitambari Shopping Mall?",
+    question: "Why should I shop at Pitambari?",
     answer:
       "With over 80 years of legacy, we provide an unparalleled in-store experience. You can expect authentic craftsmanship, spacious trial rooms, expert personal styling, and bespoke alterations to ensure your perfect fit.",
   },
   {
     id: "family",
-    question: "Can I find clothing for the whole family at Pitambari Shopping Mall?",
+    question: "Can I find clothing for the whole family at Pitambari?",
     answer:
       "Absolutely. We are a complete family fashion destination. Our multi-level showrooms feature dedicated floors for women's, men's, and children's collections, ensuring everyone finds their perfect outfit under one roof.",
   },

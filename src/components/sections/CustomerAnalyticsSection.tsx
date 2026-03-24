@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
@@ -13,6 +13,8 @@ export interface AnalyticsStat {
 interface CustomerAnalyticsSectionProps {
   image: string;
   imageAlt?: string;
+  /** Use `contain` for square or logo-style promos so nothing is cropped. */
+  imageObjectFit?: "cover" | "contain";
   headline?: string;
   description?: string;
   stats?: readonly AnalyticsStat[];
@@ -46,13 +48,15 @@ function StatCard({
 
 export function CustomerAnalyticsSection({
   image,
-  imageAlt = "Pitambari Shopping Mall collection",
+  imageAlt = "Pitambari collection",
+  imageObjectFit = "cover",
   headline = "Best fashion collection for all generations",
-  description = "Discover curated fashion and retail for every generation—from children to elders—all under one roof at Pitambari Shopping Mall.",
+  description = "Discover curated fashion and retail for every generation—from children to elders—all under one roof at Pitambari.",
   stats = DEFAULT_STATS,
 }: CustomerAnalyticsSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const [countersActive, setCountersActive] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -102,9 +106,79 @@ export function CustomerAnalyticsSection({
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.65, delay: 0.1, ease: "easeOut" }}
           >
-            <ImageFrame>
-              <Img src={image} alt={imageAlt} loading="lazy" />
-            </ImageFrame>
+            <ImageFloat
+              animate={
+                prefersReducedMotion
+                  ? undefined
+                  : { y: [0, -10, 0] }
+              }
+              transition={
+                prefersReducedMotion
+                  ? undefined
+                  : {
+                      duration: 5.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }
+              }
+            >
+              <MotionImageFrame
+                whileHover={
+                  prefersReducedMotion
+                    ? undefined
+                    : {
+                        y: -6,
+                        boxShadow: "0 22px 56px rgba(0, 0, 0, 0.14)",
+                        transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+                      }
+                }
+              >
+                <ImageClip>
+                  <ImageReveal
+                    initial={
+                      prefersReducedMotion
+                        ? { opacity: 0 }
+                        : { opacity: 0, scale: 1.06 }
+                    }
+                    whileInView={
+                      prefersReducedMotion
+                        ? { opacity: 1 }
+                        : { opacity: 1, scale: 1 }
+                    }
+                    viewport={{ once: true, amount: 0.28 }}
+                    transition={{
+                      duration: 0.95,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                  >
+                    <ImageBreathe
+                      style={{ transformOrigin: "center center" }}
+                      animate={
+                        prefersReducedMotion
+                          ? undefined
+                          : { scale: [1, 1.035, 1] }
+                      }
+                      transition={
+                        prefersReducedMotion
+                          ? undefined
+                          : {
+                              duration: 7,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                            }
+                      }
+                    >
+                      <Img
+                        src={image}
+                        alt={imageAlt}
+                        loading="lazy"
+                        $objectFit={imageObjectFit}
+                      />
+                    </ImageBreathe>
+                  </ImageReveal>
+                </ImageClip>
+              </MotionImageFrame>
+            </ImageFloat>
           </ImageCol>
         </Grid>
       </Container>
@@ -222,10 +296,23 @@ const ImageFrame = styled.div`
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
 `;
 
-const Img = styled.img`
+const ImageFloat = styled(motion.div)``;
+
+const MotionImageFrame = motion(ImageFrame);
+
+const ImageClip = styled.div`
+  overflow: hidden;
+`;
+
+const ImageReveal = styled(motion.div)``;
+
+const ImageBreathe = styled(motion.div)``;
+
+const Img = styled.img<{ $objectFit: "cover" | "contain" }>`
   display: block;
   width: 100%;
   aspect-ratio: 3 / 4;
-  object-fit: cover;
+  object-fit: ${({ $objectFit }) => $objectFit};
+  object-position: center;
   background-color: #eeeeee;
 `;

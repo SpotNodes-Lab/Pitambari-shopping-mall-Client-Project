@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom"
 import { Globe, Share2, Mail } from "lucide-react"
 import styled from "styled-components"
+import footerLogo from "@/assets/pitambri-logo-removebg-preview.png"
 
 const FooterRoot = styled.footer`
-  background-color: var(--color-surface-container-low);
+  background-color: var(--color-footer-surface);
   width: 100%;
   padding-top: 5rem;
   padding-bottom: 2.5rem;
@@ -40,18 +41,40 @@ const Column = styled.div`
 `
 
 const BrandTitle = styled.span`
-  font-family: var(--font-headline);
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--color-on-surface);
-  margin-bottom: 1rem;
+  font-family: "Playfair Display", "Baskerville", serif;
+  font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+  font-weight: 600;
+  color: var(--color-on-footer);
+  margin-bottom: 0.35rem;
   display: block;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
 `
 
-const Paragraph = styled.p`
-  color: color-mix(in srgb, var(--color-on-surface) 70%, transparent);
-  margin-bottom: 1.5rem;
+const BrandTagline = styled.span`
+  font-family: var(--font-label);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-on-footer-muted);
+  display: block;
+  margin-bottom: 1.25rem;
+`
+
+const Address = styled.address`
+  margin: 0 0 1.5rem;
+  padding: 0;
+  font-style: normal;
+  color: var(--color-on-footer-muted);
+  font-size: 0.8rem;
+  line-height: 1.65;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+`
+
+const AddressLine = styled.span`
+  display: block;
 `
 
 const SocialRow = styled.div`
@@ -64,11 +87,12 @@ const SocialButton = styled.button`
   background: transparent;
   padding: 0;
   cursor: pointer;
-  color: var(--color-primary);
-  transition: color 200ms ease;
+  color: var(--color-on-footer);
+  transition: color 200ms ease, transform 200ms ease;
 
   &:hover {
-    color: var(--color-primary-container);
+    color: var(--color-footer-accent);
+    transform: translateY(-2px);
   }
 `
 
@@ -78,7 +102,7 @@ const ColumnTitle = styled.h4`
   margin-bottom: 1.5rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--color-primary);
+  color: var(--color-footer-accent);
 `
 
 const LinkList = styled.ul`
@@ -91,63 +115,14 @@ const LinkList = styled.ul`
 `
 
 const FooterLink = styled(Link)`
-  color: color-mix(in srgb, var(--color-on-surface) 70%, transparent);
+  color: var(--color-on-footer-muted);
   text-decoration: none;
   transition: color 200ms ease, text-decoration-color 200ms ease;
 
   &:hover {
-    color: var(--color-primary);
+    color: var(--color-on-footer);
     text-decoration: underline;
     text-underline-offset: 4px;
-  }
-`
-
-const NewsletterForm = styled.form`
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid color-mix(
-    in srgb,
-    var(--color-on-surface) 20%,
-    transparent
-  );
-  padding-bottom: 0.5rem;
-  transition: border-color 200ms ease;
-
-  &:focus-within {
-    border-bottom-color: var(--color-primary);
-  }
-`
-
-const NewsletterInput = styled.input`
-  width: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-
-  color: var(--color-on-surface);
-  font-size: 0.75rem;
-  font-style: italic;
-
-  &::placeholder {
-    color: color-mix(in srgb, var(--color-on-surface) 50%, transparent);
-  }
-`
-
-const NewsletterButton = styled.button`
-  border: none;
-  background: transparent;
-  cursor: pointer;
-
-  color: var(--color-primary);
-  font-family: var(--font-headline);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.75rem;
-  transition: color 200ms ease;
-
-  &:hover {
-    color: var(--color-primary-container);
   }
 `
 
@@ -155,14 +130,31 @@ const FooterBottom = styled.div`
   margin-top: 5rem;
   border-top: 1px solid color-mix(
     in srgb,
-    var(--color-on-surface) 5%,
+    var(--color-on-footer) 14%,
     transparent
   );
   padding-top: 2.5rem;
   text-align: center;
 
-  color: color-mix(in srgb, var(--color-on-surface) 50%, transparent);
+  color: var(--color-on-footer-muted);
   font-size: 0.75rem;
+`
+
+const LogoColumn = styled(Column)`
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  @media (min-width: 768px) {
+    justify-content: flex-end;
+  }
+`
+
+const FooterLogo = styled.img`
+  width: clamp(180px, 20vw, 280px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.22));
 `
 
 export function Footer() {
@@ -171,11 +163,14 @@ export function Footer() {
       <FooterGrid>
         {/* Brand Column */}
         <Column>
-          <BrandTitle>Pitambari Shopping Mall</BrandTitle>
-          <Paragraph>
-            Redefining luxury through tradition. Every stitch tells a story of
-            heritage, reimagined for the contemporary soul.
-          </Paragraph>
+          <BrandTitle>Pitambari</BrandTitle>
+          <BrandTagline>Atelier &amp; Showrooms</BrandTagline>
+          <Address>
+            <AddressLine>PITAMBARI</AddressLine>
+            <AddressLine>LAL BAZAR, PITAMBARI ROAD,</AddressLine>
+            <AddressLine>BETTIAH, BIHAR, 845438,</AddressLine>
+            <AddressLine>WEST CHAMPARAN</AddressLine>
+          </Address>
           <SocialRow>
             <SocialButton aria-label="Website">
               <Globe size={20} strokeWidth={1.5} />
@@ -231,30 +226,14 @@ export function Footer() {
           </LinkList>
         </Column>
 
-        {/* Newsletter */}
-        <Column>
-          <ColumnTitle>Newsletter</ColumnTitle>
-          <p style={{ color: "color-mix(in srgb, var(--color-on-surface) 70%, transparent)", marginBottom: "1rem" }}>
-            Subscribe to receive updates on new collections and exclusive
-            previews.
-          </p>
-          <NewsletterForm>
-            <NewsletterInput
-              type="email"
-              placeholder="Email Address"
-              required
-            />
-            <NewsletterButton
-              type="submit"
-            >
-              Join
-            </NewsletterButton>
-          </NewsletterForm>
-        </Column>
+        <LogoColumn>
+          <FooterLogo src={footerLogo} alt="Pitambari logo" loading="lazy" />
+        </LogoColumn>
+
       </FooterGrid>
 
       <FooterBottom>
-        © {new Date().getFullYear()} Pitambari Shopping Mall. All Rights
+        © {new Date().getFullYear()} Pitambari. All Rights
         Reserved.
       </FooterBottom>
     </FooterRoot>

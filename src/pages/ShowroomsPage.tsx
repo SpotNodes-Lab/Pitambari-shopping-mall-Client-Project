@@ -5,7 +5,7 @@ import { SHOWROOMS } from "@/constants";
 export function ShowroomsPage() {
   return (
     <>
-      <PageBanner title="Showrooms" breadcrumb="Home > Showrooms" />
+      <PageBanner title="Our Businesses" breadcrumb="Home > Our Businesses" />
       <ShowroomsSection showrooms={SHOWROOMS} />
     </>
   );

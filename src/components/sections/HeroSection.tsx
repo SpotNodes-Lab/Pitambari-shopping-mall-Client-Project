@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import styled from "styled-components";
+import hero1Image from "@/assets/hero1Image.webp";
+import hero2Image from "@/assets/hero2image.webp";
 
 interface HeroData {
   title: string;
@@ -19,10 +21,9 @@ export function HeroSection({ data, isLoading }: HeroSectionProps) {
     return <Section $isLoading />;
   }
 
-  const displayTitle = data.title || "Elegance Rooted in Tradition";
+  const displayTitle = "Pitambri a Legacy";
   const displayDesc =
-    data.description ||
-    "Discover a curated symphony of rich silks, intricate zari work, and timeless silhouettes. Experience our grand bridal collections and classic menswear in person.";
+    "Discover curated collections that blend tradition with modern sophistication. Find premium fashion and lifestyle choices under one roof at Pitambari.";
 
   return (
     <Section>
@@ -48,7 +49,7 @@ export function HeroSection({ data, isLoading }: HeroSectionProps) {
           </BackgroundMandala>
 
           <EyebrowContainer>
-            <Eyebrow>Over 80 Years of Legacy</Eyebrow>
+            <Eyebrow>Years of Legacy</Eyebrow>
           </EyebrowContainer>
 
           <Title>
@@ -122,7 +123,7 @@ export function HeroSection({ data, isLoading }: HeroSectionProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
-            <img src={data.mainImage} alt="Bridal Lehenga / Featured Look" />
+            <img src={hero1Image} alt="Pitambari featured womenswear collection" />
           </MainImageWrapper>
 
           <SecondaryImageWrapper
@@ -130,7 +131,7 @@ export function HeroSection({ data, isLoading }: HeroSectionProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
           >
-            <img src={data.secondaryImage} alt="Sherwani / Collection Detail" />
+            <img src={hero2Image} alt="Pitambari featured menswear collection" />
           </SecondaryImageWrapper>
 
           <AccentCircle

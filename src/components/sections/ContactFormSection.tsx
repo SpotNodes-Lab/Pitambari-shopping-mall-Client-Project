@@ -2,6 +2,7 @@ import styled from "styled-components"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { MapPin } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { useMemo, useState } from "react"
@@ -20,6 +21,9 @@ const formSchema = z.object({
 })
 
 type FormValues = z.infer<typeof formSchema>
+const PITAMBRI_MAP_URL = "https://maps.app.goo.gl/ejHV9zB84yHDPtrj9"
+const PITAMBRI_MAP_EMBED_URL =
+  "https://www.google.com/maps?q=Pitambari%20Patna&z=15&output=embed"
 
 export function ContactFormSection() {
   const [submitted, setSubmitted] = useState(false)
@@ -34,9 +38,9 @@ export function ContactFormSection() {
 
   const contactInfo = useMemo(
     () => [
-      { label: "Email", value: "hello@pitambarishoppingmall.com" },
-      { label: "Phone", value: "+91 90000 00000" },
-      { label: "Hours", value: "10:00 AM - 7:00 PM" },
+      { label: "Email", value: "pitambari.bth@gmail.com" },
+      { label: "Phone", value: "6203121811" },
+      { label: "Hours", value: "9 am to 8pm" },
     ],
     []
   )
@@ -51,7 +55,7 @@ export function ContactFormSection() {
       <Container>
         <Grid>
           <FormCard>
-            <FormTitle>Contact</FormTitle>
+            <FormTitle>Get in Touch</FormTitle>
             <FormSubtitle>
               Tell us what you need and our team will get back to you shortly.
             </FormSubtitle>
@@ -129,12 +133,23 @@ export function ContactFormSection() {
               ))}
             </InfoList>
 
-            <MapMock>
-              <MapTitle>Nearby Showrooms</MapTitle>
-              <MapText>
-                Browse showrooms to see collections by city and availability.
-              </MapText>
-            </MapMock>
+            <MapPanel>
+              <MapTitle>Pitambari Store Location</MapTitle>
+              <MapFrame
+                title="Pitambari Store Location"
+                src={PITAMBRI_MAP_EMBED_URL}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+              <MapLink
+                href={PITAMBRI_MAP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MapPin size={16} strokeWidth={1.6} />
+                Open in Google Maps
+              </MapLink>
+            </MapPanel>
           </InfoCard>
         </Grid>
       </Container>
@@ -333,7 +348,7 @@ const InfoValue = styled.span`
   font-size: 0.95rem;
 `
 
-const MapMock = styled.div`
+const MapPanel = styled.div`
   margin-top: 1.25rem;
   border-radius: var(--radius-xl);
   background-color: color-mix(
@@ -353,9 +368,30 @@ const MapTitle = styled.h3`
   color: var(--color-primary);
 `
 
-const MapText = styled.p`
-  color: color-mix(in srgb, var(--color-on-surface) 70%, transparent);
-  line-height: 1.7;
-  font-size: 0.95rem;
+const MapFrame = styled.iframe`
+  width: 100%;
+  height: 220px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  display: block;
+  margin-top: 0.6rem;
+  background-color: var(--color-surface-container-lowest);
+`
+
+const MapLink = styled.a`
+  margin-top: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  color: var(--color-primary);
+
+  &:hover {
+    color: var(--color-primary-container);
+  }
 `
 

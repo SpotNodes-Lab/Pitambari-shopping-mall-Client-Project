@@ -78,6 +78,23 @@
   --section-y-tight: clamp(2.25rem, 5vw, 3.25rem);
   --section-y: clamp(2.75rem, 6vw, 4rem);
   --section-y-loose: clamp(3rem, 8vw, 5.5rem);
+
+  /* Brand palette (design system) */
+  --color-brand-primary: #1a1a1a;
+  --color-brand-secondary: #004b3e;
+  --color-brand-tertiary: #c49b66;
+  --color-brand-neutral: #f8f9f9;
+
+  /* Footer (green surface + light content) */
+  --color-footer-surface: var(--color-brand-secondary);
+  --color-on-footer: #ffffff;
+  --color-on-footer-muted: color-mix(in srgb, var(--color-on-footer) 72%, transparent);
+  --color-footer-accent: var(--color-brand-tertiary);
+  --color-footer-accent-hover: color-mix(
+    in srgb,
+    var(--color-brand-tertiary) 88%,
+    #ffffff
+  );
 }
 
 body {

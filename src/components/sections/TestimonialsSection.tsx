@@ -54,7 +54,7 @@ const fallbackData: Testimonial[] = [
     name: "Vikram Singh",
     title: "Loyal Patron",
     quote:
-      "My family has been shopping at Pitambari Shopping Mall for three generations. Their sherwani craftsmanship is unmatched, and the fabric quality speaks for itself. It is our go-to for every festival.",
+      "My family has been shopping at Pitambari for three generations. Their sherwani craftsmanship is unmatched, and the fabric quality speaks for itself. It is our go-to for every festival.",
   },
   {
     id: 3,

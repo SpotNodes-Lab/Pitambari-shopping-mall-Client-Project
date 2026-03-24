@@ -13,8 +13,10 @@ import Autoplay from "embla-carousel-autoplay";
 import slide1 from "@/assets/mainBanner1.png";
 import slide2 from "@/assets/mainBanner2.png";
 import slide3 from "@/assets/mainBanner3.png";
-import staticBannerTop from "@/assets/smallBanner1.jpeg";
-import staticBannerBottom from "@/assets/SmallBanner2.jpeg";
+const staticBannerTop =
+  "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/A-15.jpg";
+const staticBannerBottom =
+  "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/C-14-1.png";
 
 const staticBannerHoverTransition = {
   duration: 0.55,
@@ -196,12 +198,6 @@ export function BannerSection() {
             whileHover={staticBannerWhileHover}
           >
             <StaticImage src={staticBannerTop} alt="Bridal Couture" />
-            <StaticOverlay>
-              <StaticContent>
-                <StaticHeading>Bridal Couture</StaticHeading>
-                <StaticLink>DISCOVER</StaticLink>
-              </StaticContent>
-            </StaticOverlay>
           </StaticBanner>
 
           <StaticBanner
@@ -211,12 +207,6 @@ export function BannerSection() {
             whileHover={staticBannerWhileHover}
           >
             <StaticImage src={staticBannerBottom} alt="New Arrivals" />
-            <StaticOverlay>
-              <StaticContent>
-                <StaticHeading>New Arrivals</StaticHeading>
-                <StaticLink>VIEW ALL</StaticLink>
-              </StaticContent>
-            </StaticOverlay>
           </StaticBanner>
         </StaticBanners>
       </GridContainer>
@@ -565,137 +555,3 @@ const StaticImage = styled.img`
   }
 `;
 
-const StaticOverlay = styled.div`
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.45) 0%,
-    rgba(0, 0, 0, 0.1) 40%,
-    transparent 100%
-  );
-  transition: background 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-
-  ${StaticBanner}:hover & {
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.52) 0%,
-      rgba(0, 0, 0, 0.14) 45%,
-      rgba(0, 0, 0, 0.02) 100%
-    );
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
-`;
-
-const StaticContent = styled.div`
-  position: absolute;
-  left: 50%;
-  bottom: max(
-    clamp(1.75rem, 6vmin, 3.25rem),
-    calc(env(safe-area-inset-bottom, 0px) + 0.75rem)
-  );
-  transform: translateX(-50%);
-  width: min(100% - 2rem, 22rem);
-  max-width: calc(100% - 2rem);
-  text-align: center;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: auto;
-  /* Keeps serif descenders / link underline inside overflow-hidden banner */
-  padding-bottom: 0.35em;
-`;
-
-const StaticHeading = styled.h3`
-  font-family: "Playfair Display", "Baskerville", serif;
-  font-size: clamp(1.35rem, 4.2vmin, 1.75rem);
-  font-weight: 400;
-  line-height: 1.2;
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.08em;
-  letter-spacing: 0.02em;
-  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
-    letter-spacing 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-
-  ${StaticBanner}:hover & {
-    transform: translateY(-3px);
-    letter-spacing: 0.06em;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-    ${StaticBanner}:hover & {
-      transform: none;
-      letter-spacing: 0.02em;
-    }
-  }
-`;
-
-const StaticLink = styled.span`
-  position: relative;
-  display: inline-block;
-  font-family: var(--font-label);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  font-weight: 600;
-  line-height: 1.35;
-  padding-bottom: 6px;
-  cursor: pointer;
-  transition: letter-spacing 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-
-  &::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.95) 20%,
-      rgba(255, 255, 255, 0.95) 80%,
-      transparent
-    );
-    transform: scaleX(0.55);
-    transform-origin: center;
-    opacity: 0.75;
-    transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.45s ease;
-  }
-
-  ${StaticBanner}:hover & {
-    letter-spacing: 0.22em;
-  }
-
-  ${StaticBanner}:hover &::after {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-
-  &:hover::after {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.65);
-    padding-bottom: 4px;
-
-    &::after {
-      display: none;
-    }
-
-    ${StaticBanner}:hover & {
-      letter-spacing: 0.15em;
-    }
-  }
-`;

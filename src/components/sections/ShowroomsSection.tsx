@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { MapPin, Phone, Clock, ArrowRight } from "lucide-react";
 
 export interface Showroom {
@@ -11,6 +12,7 @@ export interface Showroom {
   hours?: string;
   cta: string;
   mapLink?: string;
+  detailsPath?: string;
 }
 
 export function ShowroomsSection({ showrooms }: { showrooms: Showroom[] }) {
@@ -60,13 +62,19 @@ export function ShowroomsSection({ showrooms }: { showrooms: Showroom[] }) {
                   )}
                 </DetailsList>
 
-                <DirectionsLink
-                  href={store.mapLink || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {store.cta || "Get Directions"} <ArrowRight size={16} />
-                </DirectionsLink>
+                {store.detailsPath ? (
+                  <DirectionsLink to={store.detailsPath}>
+                    {store.cta || "Know More"} <ArrowRight size={16} />
+                  </DirectionsLink>
+                ) : (
+                  <DirectionsExternalLink
+                    href={store.mapLink || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {store.cta || "Get Directions"} <ArrowRight size={16} />
+                  </DirectionsExternalLink>
+                )}
               </InfoWrapper>
             </StoreCard>
           ))}
@@ -192,7 +200,7 @@ const DetailText = styled.p`
 `;
 
 /* Changed from a bulky button to a sleek, expanding editorial link */
-const DirectionsLink = styled.a`
+const DirectionsLinkBase = `
   margin-top: auto; /* Always sits at the bottom */
   display: inline-flex;
   align-items: center;
@@ -221,4 +229,12 @@ const DirectionsLink = styled.a`
   ${StoreCard}:hover & svg {
     transform: translateX(4px);
   }
+`;
+
+const DirectionsLink = styled(Link)`
+  ${DirectionsLinkBase}
+`;
+
+const DirectionsExternalLink = styled.a`
+  ${DirectionsLinkBase}
 `;

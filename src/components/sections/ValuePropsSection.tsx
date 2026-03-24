@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { motion } from "framer-motion";
 // import { Award, Scissors, Sparkles, HeartHandshake } from "lucide-react";
-import { Store, Scissors, UserCheck, Repeat } from "lucide-react";
+import { CircleCheck, Shield, Heart } from "lucide-react";
 
 // const items = [
 //   {
@@ -32,28 +32,22 @@ import { Store, Scissors, UserCheck, Repeat } from "lucide-react";
 
 const items = [
   {
-    id: "fitting",
-    icon: Store,
-    title: "Spacious Trial Rooms",
-    subtitle: "Try it on and see the magic in person",
+    id: "integrity",
+    icon: CircleCheck,
+    title: "Integrity",
+    subtitle: "Upholding moral principles in every business decision.",
   },
   {
-    id: "alterations",
-    icon: Scissors,
-    title: "Instant Alterations",
-    subtitle: "Perfected by our in-house tailors",
+    id: "honesty",
+    icon: Shield,
+    title: "Honesty",
+    subtitle: "Building trust through genuine interactions and promises kept.",
   },
   {
-    id: "assistance",
-    icon: UserCheck,
-    title: "Personal Assistance",
-    subtitle: "Dedicated staff to help you style",
-  },
-  {
-    id: "exchanges",
-    icon: Repeat,
-    title: "Easy In-Store Exchange",
-    subtitle: "Quick and hassle-free size swaps",
+    id: "transparency",
+    icon: Heart,
+    title: "Transparency",
+    subtitle: "Open communication and clear policies for complete peace of mind.",
   },
 ];
 export function ValuePropsSection() {
@@ -117,7 +111,7 @@ const Grid = styled(motion.div)`
   }
 
   @media (min-width: 1024px) {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }
 `;

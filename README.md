@@ -1,6 +1,10 @@
-# Pitambari (React + TypeScript + Vite)
+# Pitambari (React + TypeScript + Vite + Rewards API)
 
-This folder contains the Pitambari frontend (React + TypeScript + Vite + Tailwind).
+This project now includes:
+
+- Frontend: React + Vite
+- Rewards backend API: Node.js + Express + MongoDB (Mongoose)
+- QR-based loyalty flow (QR/share link -> customer views points)
 
 ## Prerequisites
 
@@ -13,17 +17,20 @@ This folder contains the Pitambari frontend (React + TypeScript + Vite + Tailwin
 npm install
 ```
 
-## Environment variable (optional)
+## Environment variables
 
-The app uses `VITE_API_URL` for its API base URL:
-
-- Default (if you do nothing): `/api`
-
-To override it, create a file named `.env` in this project directory:
+Create `.env` in the project root:
 
 ```bash
-VITE_API_URL=http://localhost:3000/api
+MONGODB_URI=mongodb://127.0.0.1:27017/pitambari_rewards
+PORT=4000
+WEB_BASE_URL=http://localhost:5173
 ```
+
+Notes:
+
+- `WEB_BASE_URL` is used when generating the customer QR/reward URL.
+- Frontend calls `/api/*`, and Vite proxies it to `http://localhost:4000`.
 
 ## Run the app (development)
 
@@ -32,6 +39,12 @@ npm run dev
 ```
 
 Open the URL shown in your terminal (by default: `http://localhost:5173`).
+
+In another terminal, run the rewards API:
+
+```bash
+npm run dev:server
+```
 
 ## Build for production
 
@@ -52,3 +65,29 @@ npm run preview
 ```bash
 npm run lint
 ```
+
+## Rewards System Routes
+
+- Customer landing (scan fallback): `/rewards/scan`
+- Customer points page (QR target): `/rewards/:token`
+
+## Implemented Rewards Features
+
+- Unique secure token per customer (`crypto.randomBytes`), used in QR URL
+- Demo QR section with static QR + text (no admin panel route)
+- Customer mobile-friendly page shows name, points, tier, recent activity
+- Optional contact export via VCF download
+- WhatsApp sharing for reward links
+- Loyalty tiers:
+  - Starter (< 200)
+  - Silver (200+)
+  - Gold (500+)
+
+## Deployment Notes
+
+1. Deploy frontend (Vercel/Netlify) as usual.
+2. Deploy backend (`server/index.js`) to any Node host (Render/Railway/Fly/VM).
+3. Set backend env vars (`MONGODB_URI`, `PORT`, `WEB_BASE_URL`).
+4. If frontend and backend are on different domains, either:
+   - update Vite/prod API base handling, or
+   - place both behind the same domain and route `/api` to backend.
