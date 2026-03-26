@@ -21,9 +21,9 @@ const formSchema = z.object({
 })
 
 type FormValues = z.infer<typeof formSchema>
-const PITAMBRI_MAP_URL = "https://maps.app.goo.gl/ejHV9zB84yHDPtrj9"
+const PITAMBRI_MAP_URL = "https://maps.app.goo.gl/inFK5RkQSC2emtky7"
 const PITAMBRI_MAP_EMBED_URL =
-  "https://www.google.com/maps?q=Pitambari%20Patna&z=15&output=embed"
+  "https://www.google.com/maps?output=embed&q=LAL%20BAZAR%2C%20PITAMBARI%20ROAD%2C%20BETTIAH%2C%20BIHAR%2C%20845438%2C%20WEST%20CHAMPARAN&z=17"
 
 export function ContactFormSection() {
   const [submitted, setSubmitted] = useState(false)

@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { NAV_LINKS } from "@/constants";
 import { useUIStore } from "@/store/uiStore";
 
-const PITAMBRI_MAP_URL = "https://maps.app.goo.gl/ejHV9zB84yHDPtrj9";
+const PITAMBRI_MAP_URL = "https://maps.app.goo.gl/inFK5RkQSC2emtky7";
 
 export function Navbar() {
   const { isMobileMenuOpen, toggleMobileMenu } = useUIStore();
