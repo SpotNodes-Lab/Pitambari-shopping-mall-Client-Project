@@ -1,11 +1,14 @@
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import { VerticalMediaEmbed } from "@/components/shared/VerticalMediaEmbed";
+import type { GalleryMediaItem } from "@/services/cmsApi";
+import { isEmbeddableMediaUrl } from "@/utils/socialEmbed";
 
 export function GalleryGridSection({
   images,
   onSelect,
 }: {
-  images: { id: number | string; image: string; alt: string }[];
+  images: GalleryMediaItem[];
   onSelect?: (index: number) => void;
 }) {
   return (
@@ -30,7 +33,11 @@ export function GalleryGridSection({
                 aria-label={`Open ${img.alt} full screen`}
               >
                 <ImageWrapper>
-                  <Img src={img.image} alt={img.alt} loading="lazy" />
+                  {isEmbeddableMediaUrl(img.image) ? (
+                    <VerticalMediaEmbed url={img.image} alt={img.alt} />
+                  ) : (
+                    <Img src={img.image} alt={img.alt} loading="lazy" />
+                  )}
                 </ImageWrapper>
 
                 <TextContainer>
@@ -115,8 +122,11 @@ const Img = styled.img`
   object-position: top center; /* Focuses on the face/upper body of the model */
   transition: transform 0.8s ease;
 
-  /* Slow, luxurious zoom effect when the user hovers over the card */
   ${GalleryCard}:hover & {
+    transform: scale(1.05);
+  }
+
+  ${GalleryCard}:hover [data-arrival-media="root"] {
     transform: scale(1.05);
   }
 `;

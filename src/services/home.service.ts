@@ -1,5 +1,5 @@
 // import { apiClient } from './api'; // Uncomment when connecting to real backend
-import { LATEST_ARRIVALS, ATELIER_STORIES } from "@/constants/index";
+import { ATELIER_STORIES } from "@/constants/index";
 
 // Simulated API Service for Admin Panel Readiness
 export const HomeService = {
@@ -77,14 +77,6 @@ export const HomeService = {
           ]),
         600,
       ),
-    );
-  },
-
-  // GET /api/products/latest
-  getLatestArrivals: async () => {
-    // return apiClient.get('/products?sort=latest&limit=10');
-    return new Promise((resolve) =>
-      setTimeout(() => resolve(LATEST_ARRIVALS), 1000),
     );
   },
 

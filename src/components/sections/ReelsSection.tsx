@@ -2,42 +2,14 @@ import { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { Instagram, Youtube, X } from "lucide-react";
+import type { SocialClip } from "@/services/cmsApi";
+import {
+  buildYoutubeIframeSrc,
+  getInstagramEmbedUrl,
+  isDirectHttpVideoUrl,
+} from "@/utils/socialEmbed";
 
 export type ReelsSectionVariant = "instagram" | "youtube";
-
-interface Reel {
-  id: string;
-  videoUrl: string;
-  title: string;
-}
-
-// Your actual client videos
-const REELS_DATA: Reel[] = [
-  {
-    id: "1",
-    videoUrl:
-      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16.mp4",
-    title: "Bridal Elegance",
-  },
-  {
-    id: "2",
-    videoUrl:
-      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16-1.mp4",
-    title: "Festive Glamour",
-  },
-  {
-    id: "3",
-    videoUrl:
-      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16-3.mp4",
-    title: "Menswear Edit",
-  },
-  {
-    id: "4",
-    videoUrl:
-      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16-2.mp4",
-    title: "Signature Silks",
-  },
-];
 
 /** Clips shown in the horizontal strip; the rest are reachable via “View all”. */
 const PREVIEW_REEL_COUNT = 3;
@@ -76,11 +48,17 @@ const VARIANT_COPY: Record<
   },
 };
 
-export function ReelsSection({ variant = "instagram" }: { variant?: ReelsSectionVariant } = {}) {
+export function ReelsSection({
+  variant = "instagram",
+  clips,
+}: {
+  variant?: ReelsSectionVariant;
+  clips: SocialClip[];
+}) {
   const copy = VARIANT_COPY[variant];
   const [viewAllOpen, setViewAllOpen] = useState(false);
-  const previewReels = REELS_DATA.slice(0, PREVIEW_REEL_COUNT);
-  const hiddenCount = Math.max(0, REELS_DATA.length - PREVIEW_REEL_COUNT);
+  const previewReels = clips.slice(0, PREVIEW_REEL_COUNT);
+  const hiddenCount = Math.max(0, clips.length - PREVIEW_REEL_COUNT);
   const hasMore = hiddenCount > 0;
 
   useEffect(() => {
@@ -127,8 +105,8 @@ export function ReelsSection({ variant = "instagram" }: { variant?: ReelsSection
           {hasMore && (
             <ViewAllHint>
               <span>
-                {PREVIEW_REEL_COUNT} of {REELS_DATA.length} shown ·{" "}
-                {hiddenCount} more {copy.moreLabel}
+                {Math.min(PREVIEW_REEL_COUNT, clips.length)} of {clips.length}{" "}
+                shown · {hiddenCount} more {copy.moreLabel}
                 {hiddenCount === 1 ? "" : "s"}
               </span>
               <ViewAllTextButton
@@ -150,7 +128,7 @@ export function ReelsSection({ variant = "instagram" }: { variant?: ReelsSection
                 type="button"
                 onClick={() => setViewAllOpen(true)}
               >
-                View all ({REELS_DATA.length})
+                View all ({clips.length})
               </ToolbarViewAll>
             </RightPanelToolbar>
           )}
@@ -161,6 +139,7 @@ export function ReelsSection({ variant = "instagram" }: { variant?: ReelsSection
                   key={`${variant}-${reel.id}`}
                   reel={reel}
                   index={index}
+                  variant={variant}
                 />
               ))}
             </ReelsTrack>
@@ -170,7 +149,7 @@ export function ReelsSection({ variant = "instagram" }: { variant?: ReelsSection
               <MoreReelsEllipsis
                 type="button"
                 onClick={() => setViewAllOpen(true)}
-                aria-label={`View all ${REELS_DATA.length} clips`}
+                aria-label={`View all ${clips.length} clips`}
               >
                 <span aria-hidden>…</span>
               </MoreReelsEllipsis>
@@ -182,7 +161,7 @@ export function ReelsSection({ variant = "instagram" }: { variant?: ReelsSection
       {viewAllOpen && (
         <ReelsViewAllModal
           title={copy.viewAllModalTitle}
-          reels={REELS_DATA}
+          reels={clips}
           variantKey={variant}
           onClose={() => setViewAllOpen(false)}
         />
@@ -198,7 +177,7 @@ function ReelsViewAllModal({
   onClose,
 }: {
   title: string;
-  reels: Reel[];
+  reels: SocialClip[];
   variantKey: ReelsSectionVariant;
   onClose: () => void;
 }) {
@@ -232,6 +211,7 @@ function ReelsViewAllModal({
               key={`${variantKey}-modal-${reel.id}`}
               reel={reel}
               index={index}
+              variant={variantKey}
               autoplayOnIntersect={false}
               staggerLayout={false}
               compact
@@ -247,19 +227,217 @@ function ReelsViewAllModal({
 function ReelCard({
   reel,
   index,
+  variant,
   autoplayOnIntersect = true,
   staggerLayout = true,
   compact = false,
 }: {
-  reel: Reel;
+  reel: SocialClip;
   index: number;
+  variant: ReelsSectionVariant;
   autoplayOnIntersect?: boolean;
   staggerLayout?: boolean;
   compact?: boolean;
 }) {
+  const url = reel.url.trim();
+  const isMp4 = isDirectHttpVideoUrl(url);
+  const ytIframeSrc = !isMp4 ? buildYoutubeIframeSrc(url, { autoplay: false }) : null;
+  const igEmbedSrc = !isMp4 && !ytIframeSrc ? getInstagramEmbedUrl(url) : null;
+
+  const staggerClass =
+    staggerLayout && index % 2 !== 0 ? "staggered-down" : "";
+
+  if (isMp4) {
+    return (
+      <VideoReelCard
+        reel={reel}
+        videoUrl={url}
+        index={index}
+        staggerClass={staggerClass}
+        compact={compact}
+        autoplayOnIntersect={autoplayOnIntersect}
+      />
+    );
+  }
+
+  if (ytIframeSrc) {
+    return (
+      <YoutubeReelCard
+        reel={reel}
+        pageUrl={url}
+        index={index}
+        staggerClass={staggerClass}
+        compact={compact}
+        autoplayOnIntersect={autoplayOnIntersect}
+      />
+    );
+  }
+
+  if (igEmbedSrc) {
+    return (
+      <InstagramReelCard
+        reel={reel}
+        embedSrc={igEmbedSrc}
+        index={index}
+        staggerClass={staggerClass}
+        compact={compact}
+      />
+    );
+  }
+
+  return (
+    <CardWrapper
+      className={staggerClass}
+      $compact={compact}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.7, delay: index * 0.15 }}
+    >
+      <Card $compact={compact}>
+        <ExternalClipLink
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Open ${reel.title} — ${variant === "youtube" ? "YouTube" : "Instagram"}`}
+          $variant={variant}
+        >
+          {variant === "youtube" ? (
+            <Youtube size={compact ? 36 : 44} strokeWidth={1.25} />
+          ) : (
+            <Instagram size={compact ? 36 : 44} strokeWidth={1.25} />
+          )}
+        </ExternalClipLink>
+        <Overlay>
+          <ReelTitle>{reel.title}</ReelTitle>
+        </Overlay>
+      </Card>
+    </CardWrapper>
+  );
+}
+
+/** YouTube Shorts / watch links: muted autoplay when the card is in view (preview strip only). */
+function YoutubeReelCard({
+  reel,
+  pageUrl,
+  index,
+  staggerClass,
+  compact,
+  autoplayOnIntersect,
+}: {
+  reel: SocialClip;
+  pageUrl: string;
+  index: number;
+  staggerClass: string;
+  compact: boolean;
+  autoplayOnIntersect: boolean;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(!autoplayOnIntersect);
+
+  useEffect(() => {
+    if (!autoplayOnIntersect) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+      },
+      { threshold: 0.35, rootMargin: "0px 0px -8% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [autoplayOnIntersect]);
+
+  const src =
+    buildYoutubeIframeSrc(pageUrl, {
+      autoplay: autoplayOnIntersect ? inView : false,
+    }) ?? "";
+
+  return (
+    <CardWrapper
+      ref={containerRef}
+      className={staggerClass}
+      $compact={compact}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.7, delay: index * 0.15 }}
+    >
+      <Card $compact={compact}>
+        {src ? (
+          <EmbedIframe
+            key={autoplayOnIntersect ? `${src}-in-${inView}` : src}
+            src={src}
+            title={reel.title}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        ) : null}
+        <Overlay>
+          <ReelTitle>{reel.title}</ReelTitle>
+        </Overlay>
+      </Card>
+    </CardWrapper>
+  );
+}
+
+/** Instagram permalinks: Meta embed shows thumbnail / in-iframe player (real preview instead of gradient placeholder). */
+function InstagramReelCard({
+  reel,
+  embedSrc,
+  index,
+  staggerClass,
+  compact,
+}: {
+  reel: SocialClip;
+  embedSrc: string;
+  index: number;
+  staggerClass: string;
+  compact: boolean;
+}) {
+  return (
+    <CardWrapper
+      className={staggerClass}
+      $compact={compact}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.7, delay: index * 0.15 }}
+    >
+      <Card $compact={compact}>
+        <EmbedIframe
+          src={embedSrc}
+          title={reel.title}
+          loading="lazy"
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        />
+        <Overlay>
+          <ReelTitle>{reel.title}</ReelTitle>
+        </Overlay>
+      </Card>
+    </CardWrapper>
+  );
+}
+
+function VideoReelCard({
+  reel,
+  videoUrl,
+  index,
+  staggerClass,
+  compact,
+  autoplayOnIntersect,
+}: {
+  reel: SocialClip;
+  videoUrl: string;
+  index: number;
+  staggerClass: string;
+  compact: boolean;
+  autoplayOnIntersect: boolean;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Intersection Observer for Mobile Autoplay UX (Plays when in center of screen)
   useEffect(() => {
     if (!autoplayOnIntersect) return;
     const videoElement = videoRef.current;
@@ -284,9 +462,6 @@ function ReelCard({
   const handleMouseEnter = () => videoRef.current?.play();
   const handleMouseLeave = () => videoRef.current?.pause();
 
-  const staggerClass =
-    staggerLayout && index % 2 !== 0 ? "staggered-down" : "";
-
   return (
     <CardWrapper
       className={staggerClass}
@@ -303,7 +478,7 @@ function ReelCard({
       >
         <Video
           ref={videoRef}
-          src={reel.videoUrl}
+          src={videoUrl}
           muted
           loop
           playsInline
@@ -654,9 +829,45 @@ const Video = styled.video`
   background-color: #111111;
 `;
 
+const EmbedIframe = styled.iframe`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #0a0a0a;
+`;
+
+const ExternalClipLink = styled.a<{ $variant: ReelsSectionVariant }>`
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  color: #ffffff;
+  background: ${(p) =>
+    p.$variant === "youtube"
+      ? "linear-gradient(160deg, #0f0f0f 0%, #3d1c1c 42%, #b8322d 100%)"
+      : "linear-gradient(145deg, #833ab4 0%, #fd1d1d 52%, #fcb045 100%)"};
+  opacity: 0.94;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  svg {
+    filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.4));
+  }
+`;
+
 const Overlay = styled.div`
   position: absolute;
   inset: 0;
+  z-index: 2;
   background: linear-gradient(
     to top,
     rgba(0, 0, 0, 0.8) 0%,

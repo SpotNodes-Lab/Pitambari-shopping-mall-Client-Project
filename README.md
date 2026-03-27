@@ -27,10 +27,21 @@ PORT=4000
 WEB_BASE_URL=http://localhost:5173
 ```
 
+Optional **homepage CMS** (Pitambari-backend):
+
+```bash
+# Default: same-origin /api (Vite proxies to CMS — see vite.config.ts)
+VITE_API_URL=/api
+```
+
+The home **banner** (`BannerSection`), **Curated Categories**, and **Reels / YouTube strips** (`ReelsSection` via `useDataStore` → `reelsClips` / `youtubeClips`) use `GET /api/v1/content/homepage`: `data.mainBanner`, `data.categories.items`, `data.reels.items`, and `data.youtube.items` (each item: `title`, `url`). Invalid or empty lists fall back to bundled assets (`CURATED_CATEGORIES_FALLBACK`, `SOCIAL_REELS_FALLBACK`). CMS Instagram URLs must match `instagram.com/reel/`, `/reels/`, or `/p/`; YouTube links use the same rules as the backend (watch, Shorts, embed, `youtu.be`). Fallback clips are direct MP4s; live CMS rows use either embeddable YouTube URLs, Instagram permalinks (gradient “open in app” card), or MP4s. See `USER_WEB_API.md` in the monorepo root.
+
+**Note:** `vite` proxies `/api` to `http://localhost:4000`. Run **Pitambari-backend** on that port for CMS, or change the proxy target / set `VITE_API_URL` to your CMS base (must include `/api` path prefix, e.g. `https://cms.example.com/api`).
+
 Notes:
 
 - `WEB_BASE_URL` is used when generating the customer QR/reward URL.
-- Frontend calls `/api/*`, and Vite proxies it to `http://localhost:4000`.
+- Frontend calls `/api/*`, and Vite proxies it to `http://localhost:4000` by default.
 
 ## Run the app (development)
 

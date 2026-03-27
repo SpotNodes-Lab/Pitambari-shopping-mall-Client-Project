@@ -1,12 +1,18 @@
+import { useEffect } from "react";
 import { AboutStorySection } from "@/components/sections/AboutStorySection";
 import { CustomerAnalyticsSection } from "@/components/sections/CustomerAnalyticsSection";
 import { PageBanner } from "@/components/shared/PageBanner";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
-import { TESTIMONIALS } from "@/constants";
+import { useDataStore } from "@/store/dataStore";
 import pitambriLogo from "@/assets/pitambri-logo.png";
 import sabseSastaCropped from "@/assets/sabseSastaCropped.png";
 
 export function AboutPage() {
+  const { patronReviews, insights, fetchHomeData } = useDataStore();
+  useEffect(() => {
+    fetchHomeData();
+  }, [fetchHomeData]);
+
   return (
     <>
       <PageBanner title="About us" breadcrumb="Home > About us" />
@@ -21,11 +27,14 @@ export function AboutPage() {
         ]}
       />
       <CustomerAnalyticsSection
-        image={sabseSastaCropped}
-        imageAlt="Sabse sasta ka wada — Pitambari"
-        imageObjectFit="contain"
+        image={insights.image || sabseSastaCropped}
+        imageAlt={insights.imageAlt}
+        imageObjectFit={insights.imageObjectFit}
+        headline={insights.headline}
+        description={insights.description}
+        stats={insights.stats}
       />
-      <TestimonialsSection data={TESTIMONIALS} />
+      <TestimonialsSection data={patronReviews} />
     </>
   );
 }

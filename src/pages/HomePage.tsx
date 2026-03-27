@@ -7,12 +7,19 @@ import { LatestArrivals } from "@/components/sections/LatestArrivals";
 import { ValuePropsSection } from "@/components/sections/ValuePropsSection";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
-import { TESTIMONIALS } from "@/constants";
 import { ReelsSection } from "@/components/sections/ReelsSection";
 import sabseSastaImage from "@/assets/sabseSasta.webp";
 
 export function HomePage() {
-  const { categories, latestArrivals, isLoading, fetchHomeData } = useDataStore();
+  const {
+    categories,
+    reelsClips,
+    youtubeClips,
+    latestArrivals,
+    patronReviews,
+    isLoading,
+    fetchHomeData,
+  } = useDataStore();
 
   useEffect(() => {
     fetchHomeData();
@@ -24,15 +31,15 @@ export function HomePage() {
       <ValuePropsSection />
       <PrivilegeSale />
       <CategoryCuration data={categories} isLoading={isLoading.categories} />
-      <ReelsSection />
+      <ReelsSection clips={reelsClips} />
       <PrivilegeSale
         imageSrc={sabseSastaImage}
         imageAlt="Sabse Sasta feature poster"
         imagePosition="right center"
       />
-      <ReelsSection variant="youtube" />
+      <ReelsSection variant="youtube" clips={youtubeClips} />
       <LatestArrivals data={latestArrivals} isLoading={isLoading.arrivals} />
-      <TestimonialsSection data={TESTIMONIALS} />
+      <TestimonialsSection data={patronReviews} />
       <FaqSection />
     </>
   );

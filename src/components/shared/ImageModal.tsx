@@ -1,5 +1,7 @@
 import { useEffect } from "react"
 import styled from "styled-components"
+import { VerticalMediaEmbed } from "@/components/shared/VerticalMediaEmbed"
+import { isEmbeddableMediaUrl } from "@/utils/socialEmbed"
 
 export function ImageModal({
   open,
@@ -47,7 +49,17 @@ export function ImageModal({
           </CloseButton>
         </TopBar>
 
-        <Img src={image} alt={alt} />
+        {isEmbeddableMediaUrl(image) ? (
+          <EmbedModalStage>
+            <VerticalMediaEmbed
+              url={image}
+              alt={alt}
+              autoplayOnIntersect={false}
+            />
+          </EmbedModalStage>
+        ) : (
+          <Img src={image} alt={alt} />
+        )}
 
         <NavButton type="button" onClick={onPrev} aria-label="Previous image">
           ‹
@@ -131,6 +143,13 @@ const CloseButton = styled.button`
   &:hover {
     background-color: rgba(255, 255, 255, 0.95);
   }
+`
+
+const EmbedModalStage = styled.div`
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 80vh;
+  background: #111;
 `
 
 const Img = styled.img`

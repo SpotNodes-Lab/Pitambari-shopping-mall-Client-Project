@@ -3,17 +3,11 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import styled from "styled-components";
-
-// Notice we removed 'price' from the interface. It's an offline showcase!
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  image: string;
-}
+import type { ArrivalProduct } from "@/services/cmsApi";
+import { VerticalMediaEmbed } from "@/components/shared/VerticalMediaEmbed";
 
 interface LatestArrivalsProps {
-  data: Product[];
+  data: ArrivalProduct[];
   isLoading: boolean;
 }
 
@@ -109,10 +103,9 @@ export function LatestArrivals({ data, isLoading }: LatestArrivalsProps) {
               >
                 <ArrivalCard>
                   <ImageWrapper>
-                    <img
-                      src={product.image}
+                    <VerticalMediaEmbed
+                      url={product.image}
                       alt={product.name}
-                      loading="lazy"
                     />
                   </ImageWrapper>
                   <CardContent>
@@ -315,16 +308,8 @@ const ImageWrapper = styled.div`
   background-color: #f5f5f5;
   margin-bottom: 1.25rem;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-    transition: transform 0.8s ease;
-  }
-
-  ${ArrivalCard}:hover img {
-    transform: scale(1.05); /* Elegant slow zoom on hover */
+  ${ArrivalCard}:hover [data-arrival-media="root"] {
+    transform: scale(1.05);
   }
 `;
 

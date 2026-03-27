@@ -7,14 +7,27 @@ import {
 import styled from "styled-components";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { GALLERY_HERO_SLIDES } from "@/constants";
+import { VerticalMediaEmbed } from "@/components/shared/VerticalMediaEmbed";
+import type { GalleryMediaItem } from "@/services/cmsApi";
+import { isEmbeddableMediaUrl } from "@/utils/socialEmbed";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const AUTO_MS = 5500;
 
-export function GalleryHeroSlideshow() {
-  const slides = GALLERY_HERO_SLIDES;
+export function GalleryHeroSlideshow({
+  slides: slidesProp,
+}: {
+  /** From CMS `gallery.banners`; falls back to `GALLERY_HERO_SLIDES` when empty. */
+  slides?: GalleryMediaItem[];
+}) {
+  const slides =
+    slidesProp && slidesProp.length > 0 ? slidesProp : GALLERY_HERO_SLIDES;
   const [index, setIndex] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    setIndex((i) => (i < slides.length ? i : 0));
+  }, [slides.length]);
 
   const go = useCallback(
     (dir: -1 | 1) => {
@@ -36,6 +49,7 @@ export function GalleryHeroSlideshow() {
   }, [prefersReducedMotion, slides.length]);
 
   const current = slides[index];
+  const useEmbed = isEmbeddableMediaUrl(current.image);
 
   return (
     <Section
@@ -67,42 +81,53 @@ export function GalleryHeroSlideshow() {
                 ease: EASE,
               }}
             >
-              <KenBurns
-                animate={
-                  prefersReducedMotion
-                    ? undefined
-                    : { scale: [1, 1.04, 1] }
-                }
-                transition={
-                  prefersReducedMotion
-                    ? undefined
-                    : {
-                        duration: 14,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }
-                }
-                style={{ transformOrigin: "50% 50%" }}
-              >
-                <SlideImage
-                  src={current.image}
-                  alt={current.alt}
-                  loading={index === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                />
-              </KenBurns>
-              <Vignette aria-hidden />
-              <Shine
-                aria-hidden
-                initial={{ x: "-120%", opacity: 0 }}
-                animate={{ x: "120%", opacity: [0, 0.12, 0] }}
-                transition={{
-                  duration: 2.4,
-                  ease: "easeInOut",
-                  repeat: Infinity,
-                  repeatDelay: 5,
-                }}
-              />
+              {useEmbed ? (
+                <HeroEmbedShell>
+                  <VerticalMediaEmbed
+                    url={current.image}
+                    alt={current.alt}
+                  />
+                </HeroEmbedShell>
+              ) : (
+                <>
+                  <KenBurns
+                    animate={
+                      prefersReducedMotion
+                        ? undefined
+                        : { scale: [1, 1.04, 1] }
+                    }
+                    transition={
+                      prefersReducedMotion
+                        ? undefined
+                        : {
+                            duration: 14,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }
+                    }
+                    style={{ transformOrigin: "50% 50%" }}
+                  >
+                    <SlideImage
+                      src={current.image}
+                      alt={current.alt}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                  </KenBurns>
+                  <Vignette aria-hidden />
+                  <Shine
+                    aria-hidden
+                    initial={{ x: "-120%", opacity: 0 }}
+                    animate={{ x: "120%", opacity: [0, 0.12, 0] }}
+                    transition={{
+                      duration: 2.4,
+                      ease: "easeInOut",
+                      repeat: Infinity,
+                      repeatDelay: 5,
+                    }}
+                  />
+                </>
+              )}
             </SlideLayer>
           </AnimatePresence>
 
@@ -180,6 +205,12 @@ const Viewport = styled.div`
 const SlideLayer = styled(motion.div)`
   position: absolute;
   inset: 0;
+`;
+
+const HeroEmbedShell = styled.div`
+  position: absolute;
+  inset: 0;
+  background: #0a0a0a;
 `;
 
 const KenBurns = styled(motion.div)`

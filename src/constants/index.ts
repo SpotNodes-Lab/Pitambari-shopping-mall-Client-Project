@@ -1,6 +1,76 @@
 import pitambariBusinessThumb from "@/assets/PitambariJweles/Pitambari Image.png";
 import virasatBusinessThumb from "@/assets/virasat/Virasat Image.png";
 
+/** Curated grid on homepage when CMS `categories.items` is empty or unavailable. */
+export const CURATED_CATEGORIES_FALLBACK = [
+  {
+    id: "bridal",
+    title: "Bridal Lehengas",
+    subtitle: "Discover Masterpieces",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuAL9T15VHfNaTKXg73Zt0ZpBlExtMxwI32XLkyZCEEKt7JfeZtij2nANizikmnMc6sH0FvekhQpt9J33KfVDlzoYiWBKW1h7y269HBaB60GInHSP02r3yWbEKu9FKksuxQMPiHG-uagvp61s6JJL5PnHByRd1tJxNbPGBgyAelZyhEqFiTKnSY-8K1SPf1Cs7tkJhQQiun-a7Z6VZgwa7xmuX2z6MROJxDmxGmiZ4K9Ueo1BqqhxrzJlx-ya1IJ79CVYN9jDJDPs7U",
+  },
+  {
+    id: "sarees",
+    title: "Heritage Sarees",
+    subtitle: "Shop Classics",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuAltSW9MI2gIo9reqNiNm4KmD2wLDTGs9AIlqUF6i8KG7AKJPwSL6XntW2av355NLbiRSvGLNFLdvFgNIDAajIPrKfz-FSOWuifNnOzxRJU9o12XnJMhlA9Yy-gCxuIGtZUNq3dqk_d3-GnvpXNSYo4STIXIy5yiLx5K6XFSDluPNQB3G5ZfKoNikGAYyoXOHVPhXJk6g-UASC2ciwFiag2VcKEfB76gU7WLm-oRnMsryVQESvKS4KZyt-m_Dk-eAuAylSezdLZRu8",
+  },
+  {
+    id: "groom",
+    title: "The Modern Groom",
+    subtitle: "The New Collective",
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuDvtL3yCSM-lBkLDOdJqMhngmB00bWiTIBPeDSdgXNpO0dZk_GWbimdjU5IdrpqR3dTj5tt7Oxka6G-MbyzL2QzfzpzThdr0SFUFKorFLzoGwq1-tvEwA8k34g-gkrG_JlkOGgLxcc6UFIiWaSanLkz7nyBuyKo2j9EFkr3UAqOs8KfMMgoTpwWARVHCw-qkFkNGPhwz4cJxDNE4G1e97kgLW4Rk53DKE7eWRAvl2wTl5G5bI-loRps4X2fJz4JVtsKKsB0bc0BHKI",
+  },
+  {
+    id: "kids-festive",
+    title: "Children and Festive",
+    subtitle: "Discover Masterpieces",
+    image:
+      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/21.webp",
+  },
+  {
+    id: "modern-collections",
+    title: "Modern Collections",
+    subtitle: "Shop Classics",
+    image:
+      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/16.webp",
+  },
+  {
+    id: "summer-festive",
+    title: "Summer Festive Edit",
+    subtitle: "Shop Classics",
+    image:
+      "https://shreedholisatiretailmall.com/wp-content/uploads/2025/08/14-1.webp",
+  },
+] as const;
+
+/** Instagram + YouTube homepage strips when CMS `reels` / `youtube` items are empty (direct MP4s, same as legacy UI). */
+export const SOCIAL_REELS_FALLBACK = [
+  {
+    id: "1",
+    title: "Bridal Elegance",
+    url: "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16.mp4",
+  },
+  {
+    id: "2",
+    title: "Festive Glamour",
+    url: "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16-1.mp4",
+  },
+  {
+    id: "3",
+    title: "Menswear Edit",
+    url: "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16-3.mp4",
+  },
+  {
+    id: "4",
+    title: "Signature Silks",
+    url: "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16-2.mp4",
+  },
+] as const;
+
 export const NAV_LINKS = [
   { name: "Home", href: "/", active: true },
   { name: "About us", href: "/about", active: false },

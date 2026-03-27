@@ -1,17 +1,24 @@
-import { GALLERY_IMAGES } from "@/constants";
 import { PageBanner } from "@/components/shared/PageBanner";
 import { GalleryHeroSlideshow } from "@/components/sections/GalleryHeroSlideshow";
 import { GalleryGridSection } from "@/components/sections/GalleryGridSection";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ImageModal } from "@/components/shared/ImageModal";
+import { useDataStore } from "@/store/dataStore";
 
 export function GalleryPage() {
+  const { gallery, fetchHomeData } = useDataStore();
+  const { heroSlides, gridImages } = gallery;
+
+  useEffect(() => {
+    fetchHomeData();
+  }, [fetchHomeData]);
+
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const modalImage = useMemo(() => {
     if (selectedIndex === null) return null;
-    return GALLERY_IMAGES[selectedIndex] ?? null;
-  }, [selectedIndex]);
+    return gridImages[selectedIndex] ?? null;
+  }, [selectedIndex, gridImages]);
 
   const open = selectedIndex !== null && modalImage !== null;
 
@@ -19,7 +26,7 @@ export function GalleryPage() {
     if (selectedIndex === null) return;
     setSelectedIndex((prev) => {
       if (prev === null) return 0;
-      return (prev - 1 + GALLERY_IMAGES.length) % GALLERY_IMAGES.length;
+      return (prev - 1 + gridImages.length) % gridImages.length;
     });
   };
 
@@ -27,15 +34,15 @@ export function GalleryPage() {
     if (selectedIndex === null) return;
     setSelectedIndex((prev) => {
       if (prev === null) return 0;
-      return (prev + 1) % GALLERY_IMAGES.length;
+      return (prev + 1) % gridImages.length;
     });
   };
 
   return (
     <>
       <PageBanner title="Gallery" breadcrumb="Home > Gallery" />
-      <GalleryHeroSlideshow />
-      <GalleryGridSection images={GALLERY_IMAGES} onSelect={setSelectedIndex} />
+      <GalleryHeroSlideshow slides={heroSlides} />
+      <GalleryGridSection images={gridImages} onSelect={setSelectedIndex} />
 
       {modalImage && (
         <ImageModal

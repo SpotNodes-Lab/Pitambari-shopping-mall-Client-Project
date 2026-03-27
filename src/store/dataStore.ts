@@ -1,10 +1,30 @@
 import { create } from "zustand";
 import { HomeService } from "@/services/home.service";
+import type { Testimonial } from "@/components/sections/TestimonialsSection";
+import {
+  fetchHomepage,
+  arrivalsFromHomepage,
+  curatedCategoriesFromHomepage,
+  galleryFromHomepage,
+  insightsFromHomepage,
+  reelsFromHomepage,
+  reviewsFromHomepage,
+  youtubeFromHomepage,
+  type ArrivalProduct,
+  type GalleryContent,
+  type InsightsContent,
+  type SocialClip,
+} from "@/services/cmsApi";
 
 interface DataState {
   hero: any | null;
   categories: any[];
-  latestArrivals: any[];
+  reelsClips: SocialClip[];
+  youtubeClips: SocialClip[];
+  latestArrivals: ArrivalProduct[];
+  patronReviews: Testimonial[];
+  insights: InsightsContent;
+  gallery: GalleryContent;
   stories: any[];
   isLoading: Record<string, boolean>;
   fetchHomeData: () => Promise<void>;
@@ -13,7 +33,12 @@ interface DataState {
 export const useDataStore = create<DataState>((set) => ({
   hero: null,
   categories: [],
-  latestArrivals: [],
+  reelsClips: reelsFromHomepage(null),
+  youtubeClips: youtubeFromHomepage(null),
+  latestArrivals: arrivalsFromHomepage(null),
+  patronReviews: reviewsFromHomepage(null),
+  insights: insightsFromHomepage(null),
+  gallery: galleryFromHomepage(null),
   stories: [],
   isLoading: { hero: true, categories: true, arrivals: true, stories: true },
 
@@ -22,16 +47,16 @@ export const useDataStore = create<DataState>((set) => ({
     HomeService.getHeroContent().then((data) =>
       set((s) => ({ hero: data, isLoading: { ...s.isLoading, hero: false } })),
     );
-    HomeService.getCategories().then((data: any) =>
+    fetchHomepage().then((hp) =>
       set((s) => ({
-        categories: data,
-        isLoading: { ...s.isLoading, categories: false },
-      })),
-    );
-    HomeService.getLatestArrivals().then((data: any) =>
-      set((s) => ({
-        latestArrivals: data,
-        isLoading: { ...s.isLoading, arrivals: false },
+        categories: curatedCategoriesFromHomepage(hp),
+        reelsClips: reelsFromHomepage(hp),
+        youtubeClips: youtubeFromHomepage(hp),
+        latestArrivals: arrivalsFromHomepage(hp),
+        patronReviews: reviewsFromHomepage(hp),
+        insights: insightsFromHomepage(hp),
+        gallery: galleryFromHomepage(hp),
+        isLoading: { ...s.isLoading, categories: false, arrivals: false },
       })),
     );
     HomeService.getAtelierStories().then((data: any) =>

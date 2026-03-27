@@ -2,7 +2,9 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
+import { VerticalMediaEmbed } from "@/components/shared/VerticalMediaEmbed";
 import { useCountUp } from "@/hooks/useCountUp";
+import { isEmbeddableMediaUrl } from "@/utils/socialEmbed";
 
 export interface AnalyticsStat {
   end: number;
@@ -20,7 +22,8 @@ interface CustomerAnalyticsSectionProps {
   stats?: readonly AnalyticsStat[];
 }
 
-const DEFAULT_STATS: readonly AnalyticsStat[] = [
+/** Fallback when CMS `insights.stats` is empty (also re-used by `insightsFromHomepage`). */
+export const DEFAULT_ANALYTICS_STATS: readonly AnalyticsStat[] = [
   { end: 125, suffix: "+", label: "Unique products" },
   { end: 10, suffix: "k+", label: "Happy customers" },
   { end: 40, suffix: "+", label: "Product dealers" },
@@ -52,7 +55,7 @@ export function CustomerAnalyticsSection({
   imageObjectFit = "cover",
   headline = "Best fashion collection for all generations",
   description = "Discover curated fashion and retail for every generation—from children to elders—all under one roof at Pitambari.",
-  stats = DEFAULT_STATS,
+  stats = DEFAULT_ANALYTICS_STATS,
 }: CustomerAnalyticsSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const [countersActive, setCountersActive] = useState(false);
@@ -76,6 +79,8 @@ export function CustomerAnalyticsSection({
     return () => observer.disconnect();
   }, []);
 
+  const useRichMedia = isEmbeddableMediaUrl(image);
+
   return (
     <Section ref={sectionRef}>
       <Container>
@@ -89,9 +94,9 @@ export function CustomerAnalyticsSection({
             <Headline>{headline}</Headline>
             <Subtext>{description}</Subtext>
             <StatsGrid>
-              {stats.map((s) => (
+              {stats.map((s, idx) => (
                 <StatCard
-                  key={s.label}
+                  key={`${idx}-${s.label}`}
                   {...s}
                   active={countersActive}
                   durationMs={1800}
@@ -168,12 +173,21 @@ export function CustomerAnalyticsSection({
                             }
                       }
                     >
-                      <Img
-                        src={image}
-                        alt={imageAlt}
-                        loading="lazy"
-                        $objectFit={imageObjectFit}
-                      />
+                      {useRichMedia ? (
+                        <EmbedMediaShell>
+                          <VerticalMediaEmbed
+                            url={image}
+                            alt={imageAlt}
+                          />
+                        </EmbedMediaShell>
+                      ) : (
+                        <Img
+                          src={image}
+                          alt={imageAlt}
+                          loading="lazy"
+                          $objectFit={imageObjectFit}
+                        />
+                      )}
                     </ImageBreathe>
                   </ImageReveal>
                 </ImageClip>
@@ -307,6 +321,12 @@ const ImageClip = styled.div`
 const ImageReveal = styled(motion.div)``;
 
 const ImageBreathe = styled(motion.div)``;
+
+const EmbedMediaShell = styled.div`
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background-color: #eeeeee;
+`;
 
 const Img = styled.img<{ $objectFit: "cover" | "contain" }>`
   display: block;

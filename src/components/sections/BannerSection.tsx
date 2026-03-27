@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import styled from "styled-components";
 
@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import {
+  fetchHomepage,
+  normalizeMainBanner,
+  type HomepageMainBanner,
+} from "@/services/cmsApi";
 
 // Import local assets
 import slide1 from "@/assets/mainBanner1.png";
@@ -23,7 +28,17 @@ const staticBannerHoverTransition = {
   ease: BANNER_EASE,
 };
 
-const slides = [
+type BannerSlide = {
+  id: number;
+  image: string;
+  eyebrow: string;
+  headingLine1: string;
+  headingLine2: string;
+  buttonText: string;
+};
+
+/** Static hero when CMS has no carousel or API is unavailable. */
+const FALLBACK_SLIDES: BannerSlide[] = [
   {
     id: 1,
     image: slide1,
@@ -50,7 +65,74 @@ const slides = [
   },
 ];
 
+const OVERLAY_TEMPLATES = FALLBACK_SLIDES.map(
+  ({ eyebrow, headingLine1, headingLine2, buttonText }) => ({
+    eyebrow,
+    headingLine1,
+    headingLine2,
+    buttonText,
+  }),
+);
+
+function buildSlidesFromApiCarousel(urls: string[]): BannerSlide[] {
+  return urls.map((image, i) => {
+    const t = OVERLAY_TEMPLATES[i % OVERLAY_TEMPLATES.length];
+    return {
+      id: i + 1,
+      image,
+      eyebrow: t.eyebrow,
+      headingLine1: t.headingLine1,
+      headingLine2: t.headingLine2,
+      buttonText: t.buttonText,
+    };
+  });
+}
+
 export function BannerSection() {
+  const [apiMainBanner, setApiMainBanner] = useState<HomepageMainBanner | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchHomepage().then((payload) => {
+      if (cancelled || !payload?.mainBanner) return;
+      setApiMainBanner(payload.mainBanner);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const { resolvedSlides, rightTopSrc, rightBottomSrc, carouselKey } =
+    useMemo(() => {
+      const norm = normalizeMainBanner(apiMainBanner ?? undefined);
+      if (norm.carouselImages.length === 0) {
+        return {
+          resolvedSlides: FALLBACK_SLIDES,
+          rightTopSrc: staticBannerTop,
+          rightBottomSrc: staticBannerBottom,
+          carouselKey: "fallback",
+        };
+      }
+      const slides = buildSlidesFromApiCarousel(norm.carouselImages);
+      let rightTopSrc = staticBannerTop;
+      let rightBottomSrc = staticBannerBottom;
+      if (norm.rightImages.length >= 2) {
+        rightTopSrc = norm.rightImages[0];
+        rightBottomSrc = norm.rightImages[1];
+      } else if (norm.rightImages.length === 1) {
+        rightTopSrc = norm.rightImages[0];
+        rightBottomSrc = staticBannerBottom;
+      }
+      return {
+        resolvedSlides: slides,
+        rightTopSrc,
+        rightBottomSrc,
+        carouselKey: norm.carouselImages.join("|"),
+      };
+    }, [apiMainBanner]);
+
   const prefersReducedMotion = useReducedMotion();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: true }, [
     Autoplay({ delay: 5500, stopOnInteraction: true, stopOnMouseEnter: true }),
@@ -140,14 +222,15 @@ export function BannerSection() {
       <GridContainer>
         {/* Left Side Slider (70%) */}
         <MainSlider
+          key={carouselKey}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.72, delay: 0.5, ease: BANNER_EASE }}
         >
           <EmblaViewport ref={emblaRef}>
             <EmblaContainer>
-              {slides.map((slide, index) => (
-                <EmblaSlide key={index}>
+              {resolvedSlides.map((slide, index) => (
+                <EmblaSlide key={`${carouselKey}-${index}`}>
                   <SlideInner className="slide-inner">
                     <SlideImage src={slide.image} alt={`Slide ${index + 1}`} />
                     <SlideOverlay>
@@ -178,7 +261,7 @@ export function BannerSection() {
           </SliderControl>
 
           <SliderNav>
-            {slides.map((_, index) => (
+            {resolvedSlides.map((_, index) => (
               <NavDot
                 key={index}
                 $active={index === selectedIndex}
@@ -197,7 +280,7 @@ export function BannerSection() {
             transition={{ duration: 0.62, delay: 0.78, ease: BANNER_EASE }}
             whileHover={staticBannerWhileHover}
           >
-            <StaticImage src={staticBannerTop} alt="Bridal Couture" />
+            <StaticImage src={rightTopSrc} alt="Bridal Couture" />
           </StaticBanner>
 
           <StaticBanner
@@ -206,7 +289,7 @@ export function BannerSection() {
             transition={{ duration: 0.62, delay: 1.02, ease: BANNER_EASE }}
             whileHover={staticBannerWhileHover}
           >
-            <StaticImage src={staticBannerBottom} alt="New Arrivals" />
+            <StaticImage src={rightBottomSrc} alt="New Arrivals" />
           </StaticBanner>
         </StaticBanners>
       </GridContainer>
