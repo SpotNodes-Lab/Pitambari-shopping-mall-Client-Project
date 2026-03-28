@@ -24,7 +24,7 @@ export function PageBanner({
         </EyebrowWrapper>
 
         <Title>
-          <span className="serif-italic">The</span> {title}
+          {title}
         </Title>
 
         <Subtitle>{subtitle}</Subtitle>

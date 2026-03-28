@@ -80,15 +80,30 @@ export function buildYoutubeIframeSrc(
 }
 
 /**
- * Instagram reel/post URL → embed iframe URL (shows official poster / player inside iframe).
- * Falls back for `reel`, `reels`, and `p` permalinks.
+ * Instagram reel/post URL → embed iframe `src`.
+ * `autoplay` is best-effort (Meta may ignore it); pair with a same-origin click fallback on the iframe if needed.
  */
-export function getInstagramEmbedUrl(url: string): string | null {
+export function buildInstagramEmbedSrc(
+  url: string,
+  opts?: { autoplay?: boolean },
+): string | null {
   const raw = url.trim();
   const m = raw.match(/instagram\.com\/(?:reel|reels|p)\/([^/?#]+)/i);
   if (!m?.[1]) return null;
   const shortcode = m[1];
-  return `https://www.instagram.com/p/${encodeURIComponent(shortcode)}/embed/?captioned=false`;
+  const u = new URL(
+    `https://www.instagram.com/p/${encodeURIComponent(shortcode)}/embed/`,
+  );
+  u.searchParams.set("captioned", "false");
+  if (opts?.autoplay) u.searchParams.set("autoplay", "1");
+  return u.toString();
+}
+
+/**
+ * Base embed URL (no autoplay). Prefer `buildInstagramEmbedSrc` when toggling play-on-view.
+ */
+export function getInstagramEmbedUrl(url: string): string | null {
+  return buildInstagramEmbedSrc(url);
 }
 
 /** Use iframe/video instead of `<img src>` for HTTPS media URLs (reels, Shorts, MP4). */

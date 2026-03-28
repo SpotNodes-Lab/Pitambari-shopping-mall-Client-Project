@@ -1,55 +1,67 @@
 import styled from "styled-components";
 import { motion } from "framer-motion";
-// import { Award, Scissors, Sparkles, HeartHandshake } from "lucide-react";
-import { CircleCheck, Shield, Heart } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  Bird,
+  Hourglass,
+  BookOpen,
+  LayoutGrid,
+  ShieldCheck,
+  Flower2,
+} from "lucide-react";
 
-// const items = [
-//   {
-//     id: "legacy",
-//     icon: Award,
-//     title: "80+ Years Legacy",
-//     subtitle: "Trusted by generations",
-//   },
-//   {
-//     id: "alterations",
-//     icon: Scissors,
-//     title: "Custom Alterations",
-//     subtitle: "Perfect fit, done in-store",
-//   },
-//   {
-//     id: "quality",
-//     icon: Sparkles,
-//     title: "Premium Fabrics",
-//     subtitle: "Authentic silks & handwork",
-//   },
-//   {
-//     id: "styling",
-//     icon: HeartHandshake,
-//     title: "Expert Styling",
-//     subtitle: "Personal help for your big day",
-//   },
-// ];
+type ValueItem = {
+  id: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+};
 
-const items = [
+const items: ValueItem[] = [
   {
-    id: "integrity",
-    icon: CircleCheck,
-    title: "Integrity",
-    subtitle: "Upholding moral principles in every business decision.",
+    id: "craftsmanship",
+    icon: Bird,
+    title: "Exquisite Craftsmanship",
+    description:
+      "At Pitambari Shopping Mall, every piece is a masterpiece, intricately designed with precision and passion. Our artisans blend age-old techniques with modern aesthetics to create lehengas, sarees, sherwanis, and suits that exude unmatched elegance and charm.",
   },
   {
-    id: "honesty",
-    icon: Shield,
-    title: "Honesty",
-    subtitle: "Building trust through genuine interactions and promises kept.",
+    id: "fabrics",
+    icon: Hourglass,
+    title: "Premium Fabrics",
+    description:
+      "We believe that luxury begins with quality. Our carefully sourced fabrics, from rich silks to delicate chiffons and fine wool blends, ensure that every outfit—be it bridal wear, party ensembles, or tailored suits—feels as premium as it looks.",
   },
   {
-    id: "transparency",
-    icon: Heart,
-    title: "Transparency",
-    subtitle: "Open communication and clear policies for complete peace of mind.",
+    id: "legacy",
+    icon: BookOpen,
+    title: "Trusted Legacy",
+    description:
+      "With years of expertise in ethnic and contemporary fashion, Pitambari Shopping Mall has built a reputation for excellence. Our deep-rooted traditions and commitment to quality make us a preferred destination for those who value authenticity and style.",
+  },
+  {
+    id: "collection",
+    icon: LayoutGrid,
+    title: "Diverse Collection",
+    description:
+      "From opulent bridal lehengas to sophisticated sherwanis, from elegant sarees to modern Indo-western styles, our collection caters to every occasion. Whether it's a grand wedding, a festive celebration, or a refined evening affair, we have something for everyone.",
+  },
+  {
+    id: "experience",
+    icon: ShieldCheck,
+    title: "Exceptional Client Experience",
+    description:
+      "We are dedicated to making every shopping experience seamless and memorable. From personalized assistance to custom tailoring, our team ensures that every client finds their perfect fit, style, and comfort in every purchase.",
+  },
+  {
+    id: "designs",
+    icon: Flower2,
+    title: "Trendsetting Designs",
+    description:
+      "Fashion is ever-evolving, and so are we. Our designers create outfits that strike the perfect balance between tradition and modernity, ensuring that you always stand out with a timeless yet contemporary look.",
   },
 ];
+
 export function ValuePropsSection() {
   return (
     <Section>
@@ -63,13 +75,13 @@ export function ValuePropsSection() {
           {items.map((it) => {
             const Icon = it.icon;
             return (
-              <Card key={it.id}>
-                <IconBadge>
+              <Item key={it.id}>
+                <IconBadge aria-hidden>
                   <Icon size={24} strokeWidth={1.2} />
                 </IconBadge>
                 <Title>{it.title}</Title>
-                <Subtitle>{it.subtitle}</Subtitle>
-              </Card>
+                <Description>{it.description}</Description>
+              </Item>
             );
           })}
         </Grid>
@@ -78,16 +90,10 @@ export function ValuePropsSection() {
   );
 }
 
-// --- Styled Components ---
-
 const Section = styled.section`
   padding-top: var(--section-y);
   padding-bottom: var(--section-y-tight);
-
-  /* 1. A warm, luxurious ivory/off-white base color */
   background-color: #fcfbf9;
-
-  /* 2. A very subtle, aesthetic dot/weave pattern */
   background-image: radial-gradient(#e4e0d8 1px, transparent 1px);
   background-size: 28px 28px;
 `;
@@ -116,7 +122,8 @@ const Grid = styled(motion.div)`
   }
 `;
 
-const Card = styled.div`
+/* Flat layout on dotted section (no card panels) */
+const Item = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -126,14 +133,19 @@ const Card = styled.div`
   &:hover {
     transform: translateY(-4px);
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover {
+      transform: none;
+    }
+  }
 `;
 
 const IconBadge = styled.div`
   width: clamp(4.25rem, 12vw, 5rem);
   height: clamp(4.25rem, 12vw, 5rem);
   border-radius: 50%;
-
-  /* Keeping the badge pure white so it stands out against the patterned ivory background */
   background-color: #ffffff;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
   display: flex;
@@ -153,17 +165,17 @@ const Title = styled.h3`
   font-size: clamp(0.98rem, 2.8vw, 1.05rem);
   font-weight: 700;
   color: #222222;
-  margin-bottom: 0.4rem;
+  margin: 0 0 0.4rem;
   letter-spacing: 0.02em;
-  max-width: 18rem;
+  max-width: min(100%, 20rem);
 `;
 
-const Subtitle = styled.p`
+const Description = styled.p`
   font-family: var(--font-body);
-  font-size: clamp(0.8rem, 2.2vw, 0.85rem);
+  font-size: clamp(0.8rem, 2.2vw, 0.9rem);
   color: #777777;
   font-weight: 400;
-  max-width: 17rem;
+  max-width: min(100%, 22rem);
   margin: 0 auto;
-  line-height: 1.5;
+  line-height: 1.55;
 `;

@@ -164,35 +164,10 @@ const Paragraph = styled.p`
 
 const ImageCol = styled(motion.div)`
   position: relative;
-  padding-right: 1rem;
-  padding-bottom: 1rem;
-
-  @media (min-width: 900px) {
-    padding-right: 2rem;
-    padding-bottom: 2rem;
-  }
 `;
 
-/* THE MAGIC: This creates an elegant gold/primary border that sits offset behind the image */
 const ImageFrame = styled.div`
   position: relative;
-  z-index: 2;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 2rem;
-    left: 2rem;
-    right: -2rem;
-    bottom: -2rem;
-    border: 1px solid var(--color-primary);
-    z-index: -1;
-    transition: transform 0.4s ease;
-  }
-
-  &:hover::before {
-    transform: translate(-0.5rem, -0.5rem);
-  }
 `;
 
 const Img = styled.img`

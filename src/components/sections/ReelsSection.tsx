@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { Instagram, Youtube, X } from "lucide-react";
+import { SOCIAL_REELS_FALLBACK } from "@/constants/index";
 import type { SocialClip } from "@/services/cmsApi";
 import {
   buildYoutubeIframeSrc,
@@ -240,9 +241,17 @@ function ReelCard({
   compact?: boolean;
 }) {
   const url = reel.url.trim();
+  const hostedVideo = reel.videoUrl?.trim() ?? "";
   const isMp4 = isDirectHttpVideoUrl(url);
-  const ytIframeSrc = !isMp4 ? buildYoutubeIframeSrc(url, { autoplay: false }) : null;
-  const igEmbedSrc = !isMp4 && !ytIframeSrc ? getInstagramEmbedUrl(url) : null;
+  const useHostedVideo =
+    !isMp4 && hostedVideo.length > 0 && isDirectHttpVideoUrl(hostedVideo);
+  const ytIframeSrc =
+    !isMp4 && !useHostedVideo ? buildYoutubeIframeSrc(url, { autoplay: false }) : null;
+  const igPermalink = !isMp4 && !useHostedVideo && !ytIframeSrc ? getInstagramEmbedUrl(url) : null;
+  const instagramNativeVideoUrl =
+    variant === "instagram" && igPermalink
+      ? SOCIAL_REELS_FALLBACK[index % SOCIAL_REELS_FALLBACK.length]?.url
+      : undefined;
 
   const staggerClass =
     staggerLayout && index % 2 !== 0 ? "staggered-down" : "";
@@ -260,6 +269,34 @@ function ReelCard({
     );
   }
 
+  if (useHostedVideo) {
+    return (
+      <VideoReelCard
+        reel={reel}
+        videoUrl={hostedVideo}
+        index={index}
+        staggerClass={staggerClass}
+        compact={compact}
+        autoplayOnIntersect={autoplayOnIntersect}
+        openOriginalUrl={igPermalink ? url : undefined}
+      />
+    );
+  }
+
+  if (instagramNativeVideoUrl) {
+    return (
+      <VideoReelCard
+        reel={reel}
+        videoUrl={instagramNativeVideoUrl}
+        index={index}
+        staggerClass={staggerClass}
+        compact={compact}
+        autoplayOnIntersect={autoplayOnIntersect}
+        openOriginalUrl={url}
+      />
+    );
+  }
+
   if (ytIframeSrc) {
     return (
       <YoutubeReelCard
@@ -269,18 +306,6 @@ function ReelCard({
         staggerClass={staggerClass}
         compact={compact}
         autoplayOnIntersect={autoplayOnIntersect}
-      />
-    );
-  }
-
-  if (igEmbedSrc) {
-    return (
-      <InstagramReelCard
-        reel={reel}
-        embedSrc={igEmbedSrc}
-        index={index}
-        staggerClass={staggerClass}
-        compact={compact}
       />
     );
   }
@@ -383,44 +408,6 @@ function YoutubeReelCard({
   );
 }
 
-/** Instagram permalinks: Meta embed shows thumbnail / in-iframe player (real preview instead of gradient placeholder). */
-function InstagramReelCard({
-  reel,
-  embedSrc,
-  index,
-  staggerClass,
-  compact,
-}: {
-  reel: SocialClip;
-  embedSrc: string;
-  index: number;
-  staggerClass: string;
-  compact: boolean;
-}) {
-  return (
-    <CardWrapper
-      className={staggerClass}
-      $compact={compact}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.7, delay: index * 0.15 }}
-    >
-      <Card $compact={compact}>
-        <EmbedIframe
-          src={embedSrc}
-          title={reel.title}
-          loading="lazy"
-          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-        />
-        <Overlay>
-          <ReelTitle>{reel.title}</ReelTitle>
-        </Overlay>
-      </Card>
-    </CardWrapper>
-  );
-}
-
 function VideoReelCard({
   reel,
   videoUrl,
@@ -428,6 +415,7 @@ function VideoReelCard({
   staggerClass,
   compact,
   autoplayOnIntersect,
+  openOriginalUrl,
 }: {
   reel: SocialClip;
   videoUrl: string;
@@ -435,13 +423,17 @@ function VideoReelCard({
   staggerClass: string;
   compact: boolean;
   autoplayOnIntersect: boolean;
+  /** When the card plays a hosted MP4 but the canonical clip lives on Instagram. */
+  openOriginalUrl?: string;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (!autoplayOnIntersect) return;
+    const root = containerRef.current;
     const videoElement = videoRef.current;
-    if (!videoElement) return;
+    if (!root || !videoElement) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -452,18 +444,19 @@ function VideoReelCard({
           videoElement.pause();
         }
       },
-      { threshold: 0.6 },
+      { threshold: 0.35, rootMargin: "0px 0px -8% 0px" },
     );
 
-    observer.observe(videoElement);
+    observer.observe(root);
     return () => observer.disconnect();
-  }, [autoplayOnIntersect]);
+  }, [autoplayOnIntersect, videoUrl]);
 
   const handleMouseEnter = () => videoRef.current?.play();
   const handleMouseLeave = () => videoRef.current?.pause();
 
   return (
     <CardWrapper
+      ref={containerRef}
       className={staggerClass}
       $compact={compact}
       initial={{ opacity: 0, y: 30 }}
@@ -482,8 +475,19 @@ function VideoReelCard({
           muted
           loop
           playsInline
-          preload="metadata"
+          preload={autoplayOnIntersect ? "auto" : "metadata"}
         />
+        {openOriginalUrl ? (
+          <OpenOnInstagram
+            href={openOriginalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Open ${reel.title} on Instagram`}
+            $compact={compact}
+          >
+            <Instagram size={compact ? 18 : 20} strokeWidth={2} />
+          </OpenOnInstagram>
+        ) : null}
         <Overlay>
           <ReelTitle>{reel.title}</ReelTitle>
         </Overlay>
@@ -827,6 +831,27 @@ const Video = styled.video`
   height: 100%;
   object-fit: cover;
   background-color: #111111;
+`;
+
+const OpenOnInstagram = styled.a<{ $compact: boolean }>`
+  position: absolute;
+  top: ${({ $compact }) => ($compact ? "0.45rem" : "0.6rem")};
+  right: ${({ $compact }) => ($compact ? "0.45rem" : "0.6rem")};
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: ${({ $compact }) => ($compact ? "2rem" : "2.35rem")};
+  height: ${({ $compact }) => ($compact ? "2rem" : "2.35rem")};
+  border-radius: 50%;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(6px);
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(131, 58, 180, 0.88);
+  }
 `;
 
 const EmbedIframe = styled.iframe`

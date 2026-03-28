@@ -39,8 +39,8 @@ export function ContactFormSection() {
   const contactInfo = useMemo(
     () => [
       { label: "Email", value: "pitambari.bth@gmail.com" },
-      { label: "Phone", value: "6203121811" },
-      { label: "Hours", value: "9 am to 8pm" },
+      { label: "Phone", value: "+91 6203121811" },
+      { label: "Hours", value: "9 AM to 8 PM" },
     ],
     []
   )

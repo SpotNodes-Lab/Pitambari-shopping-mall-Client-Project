@@ -9,7 +9,7 @@ const faqData = [
     id: "locations",
     question: "Where is Pitambari located?",
     answer:
-      "We have multiple flagship showrooms located across India, including our prime locations in Ashiana Digha, Patna City, Aurangabad, and Raxaul. Please visit our Showrooms page for exact directions.",
+      "We operate a single flagship store in Bettiah, Bihar—your destination for our full collections and in-person service. Please visit our Showrooms page for the exact address and directions.",
   },
   {
     id: "products",
@@ -21,13 +21,13 @@ const faqData = [
     id: "why-shop",
     question: "Why should I shop at Pitambari?",
     answer:
-      "With over 80 years of legacy, we provide an unparalleled in-store experience. You can expect authentic craftsmanship, spacious trial rooms, expert personal styling, and bespoke alterations to ensure your perfect fit.",
+      "With over many years of legacy, we provide an unparalleled in-store experience. You can expect authentic craftsmanship, spacious trial rooms, expert personal styling, and bespoke alterations to ensure your perfect fit.",
   },
   {
     id: "family",
     question: "Can I find clothing for the whole family at Pitambari?",
     answer:
-      "Absolutely. We are a complete family fashion destination. Our multi-level showrooms feature dedicated floors for women's, men's, and children's collections, ensuring everyone finds their perfect outfit under one roof.",
+      "Absolutely. We are a complete family fashion destination. Our Bettiah store brings together women's, men's, and children's collections under one roof, so everyone can find the right outfit for weddings, festivals, and special occasions.",
   },
 ];
 

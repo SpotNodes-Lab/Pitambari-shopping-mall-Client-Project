@@ -10,7 +10,11 @@ import {
 import type { Testimonial } from "@/components/sections/TestimonialsSection";
 import type { AnalyticsStat } from "@/components/sections/CustomerAnalyticsSection";
 import { DEFAULT_ANALYTICS_STATS } from "@/components/sections/CustomerAnalyticsSection";
-import { isInstagramShareUrl, isYoutubeShareUrl } from "@/utils/socialEmbed";
+import {
+  isDirectHttpVideoUrl,
+  isInstagramShareUrl,
+  isYoutubeShareUrl,
+} from "@/utils/socialEmbed";
 
 /** Matches `GET /api/v1/content/homepage` → `data.mainBanner`. */
 export type HomepageMainBanner = {
@@ -29,6 +33,11 @@ export type CmsCategoryItem = {
 export type CmsLinkItem = {
   title: string;
   url: string;
+  /**
+   * Optional direct `.mp4` / `.webm` URL for native preview (autoplay on scroll, loop).
+   * Use with an Instagram or YouTube `url` for the canonical social link; no third-party lib can stream IG inside `<video>`.
+   */
+  videoUrl?: string;
 };
 
 /** Homepage “reviews” slice (`GET .../content/homepage` → `data.reviews`). */
@@ -86,6 +95,8 @@ export type SocialClip = {
   id: string;
   title: string;
   url: string;
+  /** When set, Reels strip uses `<video>` (autoplay in view + loop) instead of the Instagram iframe. */
+  videoUrl?: string;
 };
 
 /** Product-row shape for `LatestArrivals` (CMS or fallback). */
@@ -191,8 +202,13 @@ function socialClipsFromLinks(
   for (let i = 0; i < items.length; i += 1) {
     const title = String(items[i].title ?? "").trim();
     const url = String(items[i].url ?? "").trim();
+    const videoUrlRaw = String(items[i].videoUrl ?? "").trim();
     if (!title || !isHttpUrl(url) || !check(url)) continue;
-    out.push({ id: slugId(title, i), title, url });
+    const clip: SocialClip = { id: slugId(title, i), title, url };
+    if (isHttpUrl(videoUrlRaw) && isDirectHttpVideoUrl(videoUrlRaw)) {
+      clip.videoUrl = videoUrlRaw;
+    }
+    out.push(clip);
   }
   return out.length ? out : fallback.map((x) => ({ ...x }));
 }

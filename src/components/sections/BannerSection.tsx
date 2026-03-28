@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import styled from "styled-components";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /** Matches SectionHeader / site section motion */
 const BANNER_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-import { Button } from "@/components/ui/Button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import {
@@ -28,274 +27,8 @@ const staticBannerHoverTransition = {
   ease: BANNER_EASE,
 };
 
-type BannerSlide = {
-  id: number;
-  image: string;
-  eyebrow: string;
-  headingLine1: string;
-  headingLine2: string;
-  buttonText: string;
-};
-
-/** Static hero when CMS has no carousel or API is unavailable. */
-const FALLBACK_SLIDES: BannerSlide[] = [
-  {
-    id: 1,
-    image: slide1,
-    eyebrow: "LUXURY COLLECTION",
-    headingLine1: "Festive Edit:",
-    headingLine2: "25% Off",
-    buttonText: "SHOP NOW",
-  },
-  {
-    id: 2,
-    image: slide2,
-    eyebrow: "HERITAGE WEAR",
-    headingLine1: "Timeless",
-    headingLine2: "Elegance",
-    buttonText: "EXPLORE",
-  },
-  {
-    id: 3,
-    image: slide3,
-    eyebrow: "WEDDING SPECIAL",
-    headingLine1: "Bridal",
-    headingLine2: "Masterpieces",
-    buttonText: "VIEW COLLECTION",
-  },
-];
-
-const OVERLAY_TEMPLATES = FALLBACK_SLIDES.map(
-  ({ eyebrow, headingLine1, headingLine2, buttonText }) => ({
-    eyebrow,
-    headingLine1,
-    headingLine2,
-    buttonText,
-  }),
-);
-
-function buildSlidesFromApiCarousel(urls: string[]): BannerSlide[] {
-  return urls.map((image, i) => {
-    const t = OVERLAY_TEMPLATES[i % OVERLAY_TEMPLATES.length];
-    return {
-      id: i + 1,
-      image,
-      eyebrow: t.eyebrow,
-      headingLine1: t.headingLine1,
-      headingLine2: t.headingLine2,
-      buttonText: t.buttonText,
-    };
-  });
-}
-
-export function BannerSection() {
-  const [apiMainBanner, setApiMainBanner] = useState<HomepageMainBanner | null>(
-    null,
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchHomepage().then((payload) => {
-      if (cancelled || !payload?.mainBanner) return;
-      setApiMainBanner(payload.mainBanner);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const { resolvedSlides, rightTopSrc, rightBottomSrc, carouselKey } =
-    useMemo(() => {
-      const norm = normalizeMainBanner(apiMainBanner ?? undefined);
-      if (norm.carouselImages.length === 0) {
-        return {
-          resolvedSlides: FALLBACK_SLIDES,
-          rightTopSrc: staticBannerTop,
-          rightBottomSrc: staticBannerBottom,
-          carouselKey: "fallback",
-        };
-      }
-      const slides = buildSlidesFromApiCarousel(norm.carouselImages);
-      let rightTopSrc = staticBannerTop;
-      let rightBottomSrc = staticBannerBottom;
-      if (norm.rightImages.length >= 2) {
-        rightTopSrc = norm.rightImages[0];
-        rightBottomSrc = norm.rightImages[1];
-      } else if (norm.rightImages.length === 1) {
-        rightTopSrc = norm.rightImages[0];
-        rightBottomSrc = staticBannerBottom;
-      }
-      return {
-        resolvedSlides: slides,
-        rightTopSrc,
-        rightBottomSrc,
-        carouselKey: norm.carouselImages.join("|"),
-      };
-    }, [apiMainBanner]);
-
-  const prefersReducedMotion = useReducedMotion();
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: true }, [
-    Autoplay({ delay: 5500, stopOnInteraction: true, stopOnMouseEnter: true }),
-  ]);
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const staticBannerWhileHover = prefersReducedMotion
-    ? undefined
-    : { y: -3, transition: staticBannerHoverTransition };
-
-  const scrollTo = useCallback(
-    (index: number) => emblaApi && emblaApi.scrollTo(index),
-    [emblaApi]
-  );
-  
-  const scrollPrev = useCallback(
-    () => emblaApi && emblaApi.scrollPrev(),
-    [emblaApi]
-  );
-  
-  const scrollNext = useCallback(
-    () => emblaApi && emblaApi.scrollNext(),
-    [emblaApi]
-  );
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi, setSelectedIndex]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    emblaApi.on("reInit", onSelect);
-    
-    // Tween engine for scale "sliding over" depth effect
-    const tweenScale = () => {
-      const engine = emblaApi.internalEngine();
-      const scrollProgress = emblaApi.scrollProgress();
-      
-      emblaApi.scrollSnapList().forEach((scrollSnap, index) => {
-        let diffToTarget = scrollSnap - scrollProgress;
-        const slidesInSnap = engine.slideRegistry[index];
-        
-        slidesInSnap.forEach((slideIndex) => {
-          if (engine.options.loop) {
-            engine.slideLooper.loopPoints.forEach((loopItem) => {
-              const target = loopItem.target();
-              if (slideIndex === loopItem.index && target !== 0) {
-                const sign = Math.sign(target);
-                if (sign === -1) diffToTarget = scrollSnap - (1 + scrollProgress);
-                if (sign === 1) diffToTarget = scrollSnap + (1 - scrollProgress);
-              }
-            });
-          }
-          
-          const tweenValue = 1 - Math.abs(diffToTarget * 0.5); // scale calculation
-          const scale = Math.max(0.95, Math.min(1, tweenValue));
-          const opacity = Math.max(0.3, Math.min(1, tweenValue + 0.2));
-          
-          const slideNode = emblaApi.slideNodes()[slideIndex];
-          if (slideNode) {
-            const inner = slideNode.querySelector('.slide-inner') as HTMLElement;
-            if (inner) {
-              inner.style.transform = `scale(${scale})`;
-              inner.style.opacity = `${opacity}`;
-            }
-          }
-        });
-      });
-    };
-    
-    emblaApi.on("scroll", tweenScale);
-    tweenScale(); // initial call
-    
-    return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("reInit", onSelect);
-      emblaApi.off("scroll", tweenScale);
-    };
-  }, [emblaApi, onSelect]);
-
-  return (
-    <Section>
-      <GridContainer>
-        {/* Left Side Slider (70%) */}
-        <MainSlider
-          key={carouselKey}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.72, delay: 0.5, ease: BANNER_EASE }}
-        >
-          <EmblaViewport ref={emblaRef}>
-            <EmblaContainer>
-              {resolvedSlides.map((slide, index) => (
-                <EmblaSlide key={`${carouselKey}-${index}`}>
-                  <SlideInner className="slide-inner">
-                    <SlideImage src={slide.image} alt={`Slide ${index + 1}`} />
-                    <SlideOverlay>
-                      <OverlayContent>
-                        <Eyebrow>{slide.eyebrow}</Eyebrow>
-                        <Heading>
-                          {slide.headingLine1}
-                          <br />
-                          {slide.headingLine2}
-                        </Heading>
-                        <Button variant="primary" size="lg">
-                          {slide.buttonText}
-                        </Button>
-                      </OverlayContent>
-                    </SlideOverlay>
-                  </SlideInner>
-                </EmblaSlide>
-              ))}
-            </EmblaContainer>
-          </EmblaViewport>
-
-          <SliderControl direction="prev" onClick={scrollPrev} aria-label="Previous slide">
-            <ChevronLeft size={28} strokeWidth={1.5} />
-          </SliderControl>
-          
-          <SliderControl direction="next" onClick={scrollNext} aria-label="Next slide">
-            <ChevronRight size={28} strokeWidth={1.5} />
-          </SliderControl>
-
-          <SliderNav>
-            {resolvedSlides.map((_, index) => (
-              <NavDot
-                key={index}
-                $active={index === selectedIndex}
-                onClick={() => scrollTo(index)}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </SliderNav>
-        </MainSlider>
-
-        {/* Right Side Static Banners (30%) */}
-        <StaticBanners>
-          <StaticBanner
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.62, delay: 0.78, ease: BANNER_EASE }}
-            whileHover={staticBannerWhileHover}
-          >
-            <StaticImage src={rightTopSrc} alt="Bridal Couture" />
-          </StaticBanner>
-
-          <StaticBanner
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.62, delay: 1.02, ease: BANNER_EASE }}
-            whileHover={staticBannerWhileHover}
-          >
-            <StaticImage src={rightBottomSrc} alt="New Arrivals" />
-          </StaticBanner>
-        </StaticBanners>
-      </GridContainer>
-    </Section>
-  );
-}
+/** Carousel uses intrinsic image height / width below this breakpoint */
+const BANNER_AUTO_LAYOUT_MQ = "(max-width: 700px)";
 
 // ==========================================
 // Styled Components
@@ -319,6 +52,13 @@ const GridContainer = styled.div`
   grid-template-columns: 1fr;
   gap: 1.5rem;
 
+  @media (max-width: 700px) {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+  }
+
   @media (min-width: 1024px) {
     grid-template-columns: minmax(0, 6.8fr) minmax(0, 3.2fr);
     height: 600px;
@@ -339,6 +79,13 @@ const MainSlider = styled(motion.div)`
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 
+  @media (max-width: 700px) {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+  }
+
   @media (min-width: 1024px) {
     height: 100%;
     min-height: auto;
@@ -349,12 +96,23 @@ const EmblaViewport = styled.div`
   overflow: hidden;
   height: 100%;
   width: 100%;
+
+  @media (max-width: 700px) {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+  }
 `;
 
 const EmblaContainer = styled.div`
   display: flex;
   height: 100%;
   touch-action: pan-y;
+
+  @media (max-width: 700px) {
+    height: auto;
+    align-items: flex-start;
+  }
 `;
 
 const EmblaSlide = styled.div`
@@ -363,6 +121,11 @@ const EmblaSlide = styled.div`
   position: relative;
   height: 100%;
   padding: 0;
+
+  @media (max-width: 700px) {
+    height: auto;
+    min-height: 0;
+  }
 `;
 
 const SlideInner = styled.div`
@@ -374,6 +137,15 @@ const SlideInner = styled.div`
   transform-origin: center;
   will-change: transform, opacity;
   transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+
+  @media (max-width: 700px) {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+    will-change: auto;
+    transition: none;
+  }
 `;
 
 const SlideImage = styled.img`
@@ -396,6 +168,23 @@ const SlideImage = styled.img`
     filter: brightness(1.09) saturate(1.14) contrast(1.03);
   }
 
+  @media (max-width: 700px) {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+    transform: none;
+    filter: brightness(1) saturate(1);
+
+    ${MainSlider}:hover & {
+      transform: none;
+      filter: brightness(1) saturate(1);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
     ${MainSlider}:hover & {
@@ -405,147 +194,58 @@ const SlideImage = styled.img`
   }
 `;
 
-const SlideOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.2) 40%,
-    transparent 100%
-  );
-  display: flex;
-  align-items: center;
-  padding: 2.5rem;
-  transition: background 0.85s cubic-bezier(0.22, 1, 0.36, 1);
-
-  ${MainSlider}:hover & {
-    background: linear-gradient(
-      to right,
-      rgba(0, 0, 0, 0.42) 0%,
-      rgba(0, 0, 0, 0.14) 42%,
-      transparent 100%
-    );
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
-
-  @media (min-width: 768px) {
-    padding: 4rem;
-  }
-`;
-
 const SliderControl = styled.button<{ direction: "prev" | "next" }>`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   ${(props) => (props.direction === "prev" ? "left: 1rem;" : "right: 1rem;")}
-  
+
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   color: #fff;
-  
+
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 20;
-  transition: all 0.3s ease;
-  
-  opacity: 0;
-  
-  ${MainSlider}:hover & {
-    opacity: 1;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    opacity 0.25s ease,
+    transform 0.25s ease;
+
+  /* Touch / coarse pointers: always visible (no hover) */
+  opacity: 0.88;
+
+  @media (hover: hover) and (pointer: fine) {
+    opacity: 0;
+    ${MainSlider}:hover & {
+      opacity: 1;
+    }
   }
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.28);
+    border-color: rgba(255, 255, 255, 0.45);
     transform: translateY(-50%) scale(1.05);
   }
-  
+
+  &:focus-visible {
+    opacity: 1;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
   @media (min-width: 768px) {
     ${(props) => (props.direction === "prev" ? "left: 2rem;" : "right: 2rem;")}
     width: 52px;
     height: 52px;
   }
-`;
-
-const OverlayContent = styled.div`
-  max-width: 500px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  color: #fff;
-`;
-
-const Eyebrow = styled.span`
-  font-family: var(--font-label);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  font-size: 0.8rem;
-  margin-bottom: 1.2rem;
-  opacity: 0.9;
-
-  @media (min-width: 768px) {
-    font-size: 0.85rem;
-    letter-spacing: 0.2em;
-  }
-`;
-
-const Heading = styled.h2`
-  font-family: "Playfair Display", "Baskerville", serif;
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
-  font-weight: 400;
-  line-height: 1.1;
-  margin-bottom: 2.5rem;
-  color: #fff;
-  letter-spacing: -0.01em;
-`;
-
-const SliderNav = styled.div`
-  position: absolute;
-  bottom: 2.5rem;
-  left: 2.5rem;
-  display: flex;
-  gap: 0.75rem;
-  z-index: 10;
-
-  @media (min-width: 768px) {
-    left: 4rem;
-  }
-`;
-
-const NavDot = styled.button<{ $active: boolean }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #fff;
-  opacity: ${(props) => (props.$active ? 1 : 0.4)};
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  ${(props) =>
-    props.$active &&
-    `
-    transform: scale(1.3);
-  `}
 `;
 
 const StaticBanners = styled.div`
@@ -637,4 +337,232 @@ const StaticImage = styled.img`
     }
   }
 `;
+
+
+
+type BannerSlide = {
+  id: number;
+  image: string;
+};
+
+/** Static hero when CMS has no carousel or API is unavailable. */
+const FALLBACK_SLIDES: BannerSlide[] = [
+  { id: 1, image: slide1 },
+  { id: 2, image: slide2 },
+  { id: 3, image: slide3 },
+];
+
+function buildSlidesFromApiCarousel(urls: string[]): BannerSlide[] {
+  return urls.map((image, i) => ({
+    id: i + 1,
+    image,
+  }));
+}
+
+export function BannerSection() {
+  const [apiMainBanner, setApiMainBanner] = useState<HomepageMainBanner | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchHomepage().then((payload) => {
+      if (cancelled || !payload?.mainBanner) return;
+      setApiMainBanner(payload.mainBanner);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const { resolvedSlides, rightTopSrc, rightBottomSrc, carouselKey } =
+    useMemo(() => {
+      const norm = normalizeMainBanner(apiMainBanner ?? undefined);
+      if (norm.carouselImages.length === 0) {
+        return {
+          resolvedSlides: FALLBACK_SLIDES,
+          rightTopSrc: staticBannerTop,
+          rightBottomSrc: staticBannerBottom,
+          carouselKey: "fallback",
+        };
+      }
+      const slides = buildSlidesFromApiCarousel(norm.carouselImages);
+      let rightTopSrc = staticBannerTop;
+      let rightBottomSrc = staticBannerBottom;
+      if (norm.rightImages.length >= 2) {
+        rightTopSrc = norm.rightImages[0];
+        rightBottomSrc = norm.rightImages[1];
+      } else if (norm.rightImages.length === 1) {
+        rightTopSrc = norm.rightImages[0];
+        rightBottomSrc = staticBannerBottom;
+      }
+      return {
+        resolvedSlides: slides,
+        rightTopSrc,
+        rightBottomSrc,
+        carouselKey: norm.carouselImages.join("|"),
+      };
+    }, [apiMainBanner]);
+
+  const prefersReducedMotion = useReducedMotion();
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: true }, [
+    Autoplay({
+      delay: 5500,
+      /* Keep advancing after prev/next; pause only while pointer is over slider */
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+    }),
+  ]);
+
+  const scrollPrev = useCallback(
+    () => emblaApi?.scrollPrev(),
+    [emblaApi],
+  );
+
+  const scrollNext = useCallback(
+    () => emblaApi?.scrollNext(),
+    [emblaApi],
+  );
+
+  const staticBannerWhileHover = prefersReducedMotion
+    ? undefined
+    : { y: -3, transition: staticBannerHoverTransition };
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const mq = window.matchMedia(BANNER_AUTO_LAYOUT_MQ);
+
+    const clearSlideTweenStyles = () => {
+      emblaApi.slideNodes().forEach((slideNode) => {
+        const inner = slideNode.querySelector(".slide-inner") as HTMLElement | null;
+        if (inner) {
+          inner.style.transform = "";
+          inner.style.opacity = "";
+        }
+      });
+    };
+
+    // Tween engine for scale "sliding over" depth effect (disabled ≤700px — layout is height:auto)
+    const tweenScale = () => {
+      if (mq.matches) {
+        clearSlideTweenStyles();
+        return;
+      }
+
+      const engine = emblaApi.internalEngine();
+      const scrollProgress = emblaApi.scrollProgress();
+
+      emblaApi.scrollSnapList().forEach((scrollSnap, index) => {
+        let diffToTarget = scrollSnap - scrollProgress;
+        const slidesInSnap = engine.slideRegistry[index];
+
+        slidesInSnap.forEach((slideIndex) => {
+          if (engine.options.loop) {
+            engine.slideLooper.loopPoints.forEach((loopItem) => {
+              const target = loopItem.target();
+              if (slideIndex === loopItem.index && target !== 0) {
+                const sign = Math.sign(target);
+                if (sign === -1) diffToTarget = scrollSnap - (1 + scrollProgress);
+                if (sign === 1) diffToTarget = scrollSnap + (1 - scrollProgress);
+              }
+            });
+          }
+
+          const tweenValue = 1 - Math.abs(diffToTarget * 0.5); // scale calculation
+          const scale = Math.max(0.95, Math.min(1, tweenValue));
+          const opacity = Math.max(0.3, Math.min(1, tweenValue + 0.2));
+
+          const slideNode = emblaApi.slideNodes()[slideIndex];
+          if (slideNode) {
+            const inner = slideNode.querySelector(".slide-inner") as HTMLElement;
+            if (inner) {
+              inner.style.transform = `scale(${scale})`;
+              inner.style.opacity = `${opacity}`;
+            }
+          }
+        });
+      });
+    };
+
+    const onBreakpointChange = () => {
+      tweenScale();
+      emblaApi.reInit();
+    };
+
+    emblaApi.on("scroll", tweenScale);
+    mq.addEventListener("change", onBreakpointChange);
+    tweenScale();
+
+    return () => {
+      emblaApi.off("scroll", tweenScale);
+      mq.removeEventListener("change", onBreakpointChange);
+    };
+  }, [emblaApi]);
+
+  return (
+    <Section>
+      <GridContainer>
+        {/* Left Side Slider (70%) */}
+        <MainSlider
+          key={carouselKey}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.72, delay: 0.5, ease: BANNER_EASE }}
+        >
+          <EmblaViewport ref={emblaRef}>
+            <EmblaContainer>
+              {resolvedSlides.map((slide, index) => (
+                <EmblaSlide key={`${carouselKey}-${index}`}>
+                  <SlideInner className="slide-inner">
+                    <SlideImage src={slide.image} alt={`Slide ${index + 1}`} />
+                  </SlideInner>
+                </EmblaSlide>
+              ))}
+            </EmblaContainer>
+          </EmblaViewport>
+
+          <SliderControl
+            type="button"
+            direction="prev"
+            onClick={scrollPrev}
+            aria-label="Previous slide"
+          >
+            <ChevronLeft size={28} strokeWidth={1.5} />
+          </SliderControl>
+
+          <SliderControl
+            type="button"
+            direction="next"
+            onClick={scrollNext}
+            aria-label="Next slide"
+          >
+            <ChevronRight size={28} strokeWidth={1.5} />
+          </SliderControl>
+        </MainSlider>
+
+        {/* Right Side Static Banners (30%) */}
+        <StaticBanners>
+          <StaticBanner
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.62, delay: 0.78, ease: BANNER_EASE }}
+            whileHover={staticBannerWhileHover}
+          >
+            <StaticImage src={rightTopSrc} alt="Bridal Couture" />
+          </StaticBanner>
+
+          <StaticBanner
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.62, delay: 1.02, ease: BANNER_EASE }}
+            whileHover={staticBannerWhileHover}
+          >
+            <StaticImage src={rightBottomSrc} alt="New Arrivals" />
+          </StaticBanner>
+        </StaticBanners>
+      </GridContainer>
+    </Section>
+  );
+}
 
