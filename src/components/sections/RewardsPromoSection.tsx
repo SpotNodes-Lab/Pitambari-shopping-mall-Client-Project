@@ -1,19 +1,59 @@
 import styled from "styled-components";
 import { QRCodeCanvas } from "qrcode.react";
+import {
+  DEFAULT_REWARDS_QR_CAPTION,
+  type RewardsQrBlock,
+} from "@/services/cmsApi";
 
-export function RewardsPromoSection() {
+type Props = {
+  blocks?: RewardsQrBlock[];
+};
+
+export function RewardsPromoSection({ blocks = [] }: Props) {
+  const scanUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/rewards/scan`
+      : "/rewards/scan";
+
+  if (blocks.length > 0) {
+    return (
+      <Section>
+        <Container>
+          <Stack>
+            {blocks.map((b) => (
+              <Block key={b.id}>
+                <Badge>Rewards</Badge>
+                <Title>{b.title}</Title>
+                <Subtext>
+                  Scan the code to open the linked page. You can also tap the image.
+                </Subtext>
+                <QrWrap>
+                  <QrLink href={b.link} target="_blank" rel="noopener noreferrer">
+                    <QrImage src={b.image} alt="" width={200} height={200} loading="lazy" />
+                  </QrLink>
+                </QrWrap>
+                <Caption>{b.description}</Caption>
+              </Block>
+            ))}
+          </Stack>
+        </Container>
+      </Section>
+    );
+  }
+
   return (
     <Section>
       <Container>
         <Badge>Rewards</Badge>
         <Title>Rewards QR</Title>
         <Subtext>
-          Scan this QR to open the rewards page. This is a demo section with static QR and text.
+          Scan this QR to open the rewards page. Add an active QR block in the admin CMS to replace
+          this with your uploaded image and caption.
         </Subtext>
         <QrWrap>
-          <QRCodeCanvas value={`${window.location.origin}/rewards/scan`} size={170} includeMargin />
+          <QRCodeCanvas value={scanUrl} size={170} includeMargin />
         </QrWrap>
-        <Caption>Point your camera to scan and open rewards.</Caption>
+        <Caption>{DEFAULT_REWARDS_QR_CAPTION}</Caption>
       </Container>
     </Section>
   );
@@ -31,6 +71,17 @@ const Container = styled.div`
   margin: 0 auto;
   padding: 0 1rem;
   text-align: center;
+`;
+
+const Stack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  align-items: center;
+`;
+
+const Block = styled.div`
+  max-width: 640px;
 `;
 
 const Badge = styled.p`
@@ -58,6 +109,28 @@ const QrWrap = styled.div`
   display: flex;
   justify-content: center;
   margin: 0.3rem 0 0.6rem;
+`;
+
+const QrLink = styled.a`
+  display: inline-block;
+  line-height: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const QrImage = styled.img`
+  display: block;
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  background: #fff;
 `;
 
 const Caption = styled.p`

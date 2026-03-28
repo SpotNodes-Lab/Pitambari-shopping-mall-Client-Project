@@ -3,6 +3,7 @@ import { HomeService } from "@/services/home.service";
 import type { Testimonial } from "@/components/sections/TestimonialsSection";
 import {
   fetchHomepage,
+  fetchPublicQRCodes,
   arrivalsFromHomepage,
   curatedCategoriesFromHomepage,
   galleryFromHomepage,
@@ -13,6 +14,7 @@ import {
   type ArrivalProduct,
   type GalleryContent,
   type InsightsContent,
+  type RewardsQrBlock,
   type SocialClip,
 } from "@/services/cmsApi";
 
@@ -25,6 +27,8 @@ interface DataState {
   patronReviews: Testimonial[];
   insights: InsightsContent;
   gallery: GalleryContent;
+  /** Active QR blocks from `GET /api/v1/qr-codes/public` (empty → homepage uses static fallback). */
+  rewardsQrBlocks: RewardsQrBlock[];
   stories: any[];
   isLoading: Record<string, boolean>;
   fetchHomeData: () => Promise<void>;
@@ -39,6 +43,7 @@ export const useDataStore = create<DataState>((set) => ({
   patronReviews: reviewsFromHomepage(null),
   insights: insightsFromHomepage(null),
   gallery: galleryFromHomepage(null),
+  rewardsQrBlocks: [],
   stories: [],
   isLoading: { hero: true, categories: true, arrivals: true, stories: true },
 
@@ -58,6 +63,9 @@ export const useDataStore = create<DataState>((set) => ({
         gallery: galleryFromHomepage(hp),
         isLoading: { ...s.isLoading, categories: false, arrivals: false },
       })),
+    );
+    fetchPublicQRCodes().then((blocks) =>
+      set((s) => ({ ...s, rewardsQrBlocks: blocks })),
     );
     HomeService.getAtelierStories().then((data: any) =>
       set((s) => ({

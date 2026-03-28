@@ -384,3 +384,70 @@ export async function fetchHomepage(): Promise<HomepagePayload | null> {
     return null;
   }
 }
+
+/** Matches admin default caption (`USER_WEB_API.md` / Pitambari-backend `QRCodeItem`). */
+export const DEFAULT_REWARDS_QR_CAPTION =
+  "Point your camera to scan and open rewards.";
+
+/** One row from `GET /api/v1/qr-codes/public`. */
+export type PublicQrCodeItem = {
+  _id: string;
+  title: string;
+  image: string;
+  link: string;
+  order?: number;
+  description?: string;
+};
+
+/** Normalized shape for `RewardsPromoSection`. */
+export type RewardsQrBlock = {
+  id: string;
+  title: string;
+  image: string;
+  link: string;
+  description: string;
+};
+
+type PublicQrApiEnvelope = {
+  success?: boolean;
+  data?: PublicQrCodeItem[];
+};
+
+/**
+ * Active, non-deleted QR blocks for the storefront (`GET /api/v1/qr-codes/public`).
+ * Order matches the API (by `order`, then `createdAt`).
+ */
+export function normalizePublicQrList(
+  raw: PublicQrCodeItem[] | null | undefined,
+): RewardsQrBlock[] {
+  if (!raw?.length) return [];
+  const out: RewardsQrBlock[] = [];
+  for (let i = 0; i < raw.length; i += 1) {
+    const row = raw[i];
+    const image = String(row?.image ?? "").trim();
+    const link = String(row?.link ?? "").trim();
+    const title = String(row?.title ?? "").trim();
+    if (!isHttpUrl(image) || !isHttpUrl(link) || !title) continue;
+    const desc = String(row?.description ?? "").trim();
+    out.push({
+      id: String(row._id ?? `qr-${i}`),
+      title,
+      image,
+      link,
+      description: desc || DEFAULT_REWARDS_QR_CAPTION,
+    });
+  }
+  return out;
+}
+
+export async function fetchPublicQRCodes(): Promise<RewardsQrBlock[]> {
+  try {
+    const res = (await apiClient.get(
+      "v1/qr-codes/public",
+    )) as unknown as PublicQrApiEnvelope;
+    return normalizePublicQrList(res?.data);
+  } catch (e) {
+    console.warn("[cms] qr-codes/public failed, rewards section will use fallback", e);
+    return [];
+  }
+}

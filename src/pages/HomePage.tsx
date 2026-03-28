@@ -7,6 +7,7 @@ import { LatestArrivals } from "@/components/sections/LatestArrivals";
 import { ValuePropsSection } from "@/components/sections/ValuePropsSection";
 import { FaqSection } from "@/components/sections/FaqSection";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
+import { RewardsPromoSection } from "@/components/sections/RewardsPromoSection";
 import { ReelsSection } from "@/components/sections/ReelsSection";
 import sabseSastaImage from "@/assets/sabseSasta.webp";
 
@@ -17,6 +18,7 @@ export function HomePage() {
     youtubeClips,
     latestArrivals,
     patronReviews,
+    rewardsQrBlocks,
     isLoading,
     fetchHomeData,
   } = useDataStore();
@@ -40,6 +42,7 @@ export function HomePage() {
       <ReelsSection variant="youtube" clips={youtubeClips} />
       <LatestArrivals data={latestArrivals} isLoading={isLoading.arrivals} />
       <TestimonialsSection data={patronReviews} />
+      <RewardsPromoSection blocks={rewardsQrBlocks} />
       <FaqSection />
     </>
   );

@@ -6,7 +6,7 @@ import { TestimonialsSection } from "@/components/sections/TestimonialsSection"
 import { useDataStore } from "@/store/dataStore"
 
 export function ContactPage() {
-  const { patronReviews, fetchHomeData } = useDataStore()
+  const { patronReviews, rewardsQrBlocks, fetchHomeData } = useDataStore()
   useEffect(() => {
     fetchHomeData()
   }, [fetchHomeData])
@@ -15,7 +15,7 @@ export function ContactPage() {
     <>
       <PageBanner title="Get in Touch" breadcrumb="Home > Get in Touch" />
       <ContactFormSection />
-      <RewardsPromoSection />
+      <RewardsPromoSection blocks={rewardsQrBlocks} />
       <TestimonialsSection data={patronReviews} />
     </>
   )

@@ -38,6 +38,22 @@ The home **banner** (`BannerSection`), **Curated Categories**, and **Reels / You
 
 **Note:** `vite` proxies `/api` to `http://localhost:4000`. Run **Pitambari-backend** on that port for CMS, or change the proxy target / set `VITE_API_URL` to your CMS base (must include `/api` path prefix, e.g. `https://cms.example.com/api`).
 
+### Deploying the storefront (e.g. Vercel) — CMS + QR must reach the API
+
+The homepage and **Rewards QR** block call `GET /api/v1/content/homepage` and `GET /api/v1/qr-codes/public`. In **production**, `VITE_API_URL=/api` **does not** forward to your backend (that only works in `npm run dev`).
+
+1. In the **Vercel** (or other) project **Environment Variables**, set:
+
+   `VITE_API_URL` = `https://<your-pitambari-backend-host>/api`
+
+   (Same URL you use for the admin app’s `VITE_API_URL`, if applicable.)
+
+2. **Redeploy** the client after changing env vars (Vite bakes `VITE_*` in at build time).
+
+3. On **Pitambari-backend**, set `CORS_ORIGINS` to your live storefront origin (comma-separated), e.g. `https://shopping-mall-client-proj.vercel.app`, or use `*` only for testing.
+
+If this is missing, the site keeps **static fallbacks** (generic QR to `/rewards/scan`, demo copy) even when the admin shows real QR rows.
+
 Notes:
 
 - `WEB_BASE_URL` is used when generating the customer QR/reward URL.
