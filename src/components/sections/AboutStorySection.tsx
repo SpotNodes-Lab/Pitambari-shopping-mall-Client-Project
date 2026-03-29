@@ -12,7 +12,7 @@ export function AboutStorySection({
   image,
   paragraphs,
   headline = "Our Heritage",
-  eyebrow = "80+ Years of Trust",
+  eyebrow = "Years of Legacy",
 }: AboutStoryProps) {
   return (
     <Section>
@@ -32,10 +32,13 @@ export function AboutStorySection({
             </EyebrowWrapper>
 
             <Heading>
-              {headline.split(" ").map((word, i) => (
-                // Automatically makes the first word italic for that magazine feel
-                <span key={i} className={i === 0 ? "serif-italic" : ""}>
-                  {word}{" "}
+              {headline.split(/\s+/).map((word, i, words) => (
+                <span
+                  key={`${i}-${word}`}
+                  className={i === 0 ? "headline-first" : "headline-accent"}
+                >
+                  {word}
+                  {i < words.length - 1 ? "\u00A0" : ""}
                 </span>
               ))}
             </Heading>
@@ -128,17 +131,18 @@ const Eyebrow = styled.span`
 const Heading = styled.h2`
   font-family: var(--font-headline);
   font-weight: 500;
-  color: #222222;
   font-size: 2.75rem;
   line-height: 1.15;
   margin-bottom: 2rem;
-  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 
-  .serif-italic {
-    font-family: "Playfair Display", "Baskerville", serif;
-    font-style: italic;
+  .headline-first {
+    color: #222222;
+  }
+
+  .headline-accent {
     color: var(--color-primary);
-    font-size: 110%;
   }
 
   @media (min-width: 768px) {

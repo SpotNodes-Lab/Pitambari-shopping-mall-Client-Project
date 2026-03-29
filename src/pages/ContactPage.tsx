@@ -13,7 +13,7 @@ export function ContactPage() {
 
   return (
     <>
-      <PageBanner title="Get in Touch" breadcrumb="Home > Get in Touch" />
+      <PageBanner title="Contact" breadcrumb="Home > Contact" />
       <ContactFormSection />
       <RewardsPromoSection blocks={rewardsQrBlocks} />
       <TestimonialsSection data={patronReviews} />

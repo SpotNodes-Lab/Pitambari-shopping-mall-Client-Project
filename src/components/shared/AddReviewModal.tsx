@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import styled from "styled-components"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
@@ -28,14 +28,15 @@ export function AddReviewModal({
 }: {
   open: boolean
   onClose: () => void
-  onSubmitReview: (values: ReviewFormValues) => void
+  onSubmitReview: (values: ReviewFormValues) => void | Promise<void>
 }) {
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
@@ -66,6 +67,7 @@ export function AddReviewModal({
 
   useEffect(() => {
     if (open) {
+      setSubmitError(null)
       reset({
         rating: 5,
         quote: "",
@@ -77,9 +79,26 @@ export function AddReviewModal({
 
   if (!open) return null
 
-  function onSubmit(values: ReviewFormValues) {
-    onSubmitReview(values)
-    onClose()
+  async function onValidSubmit(values: ReviewFormValues) {
+    setSubmitError(null)
+    console.log("[Pitambari AddReviewModal] submit started", {
+      rating: values.rating,
+      quoteLength: values.quote.length,
+      name: values.name,
+      title: values.title,
+    })
+    try {
+      await Promise.resolve(onSubmitReview(values))
+      console.log("[Pitambari AddReviewModal] onSubmitReview completed, closing modal")
+      onClose()
+    } catch (e: unknown) {
+      const message =
+        e instanceof globalThis.Error
+          ? e.message
+          : "Could not submit your review. Please try again."
+      console.error("[Pitambari AddReviewModal] onSubmitReview failed", e)
+      setSubmitError(message)
+    }
   }
 
   return (
@@ -97,8 +116,9 @@ export function AddReviewModal({
             <TitleBlock>
               <ModalTitle id="add-review-title">Share your experience</ModalTitle>
               <ModalLead>
-                Your review may appear alongside other patron stories on this
-                site.
+                We&apos;ll receive your note for our team. Featured stories on
+                this page are curated from our admin panel—thank you for taking
+                the time to share.
               </ModalLead>
             </TitleBlock>
             <IconClose type="button" onClick={onClose} aria-label="Close">
@@ -106,7 +126,7 @@ export function AddReviewModal({
             </IconClose>
           </ModalHeader>
 
-          <Form onSubmit={handleSubmit(onSubmit)}>
+          <Form onSubmit={handleSubmit(onValidSubmit)}>
           <Field>
             <Label htmlFor="review-rating">Rating</Label>
             <Controller
@@ -180,11 +200,24 @@ export function AddReviewModal({
 
           <FooterDivider />
 
+          {submitError && (
+            <ErrorText role="alert" style={{ marginTop: "-0.25rem" }}>
+              {submitError}
+            </ErrorText>
+          )}
+
           <ButtonRow>
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit">Submit review</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Sending…" : "Submit review"}
+            </Button>
           </ButtonRow>
           </Form>
         </ModalBody>

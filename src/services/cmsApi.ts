@@ -4,7 +4,8 @@ import {
   GALLERY_HERO_SLIDES,
   GALLERY_IMAGES,
   LATEST_ARRIVALS,
-  SOCIAL_REELS_FALLBACK,
+  INSTAGRAM_REELS_STATIC_FALLBACK,
+  YOUTUBE_SHORTS_STATIC_FALLBACK,
   TESTIMONIALS,
 } from "@/constants";
 import type { Testimonial } from "@/components/sections/TestimonialsSection";
@@ -213,18 +214,26 @@ function socialClipsFromLinks(
   return out.length ? out : fallback.map((x) => ({ ...x }));
 }
 
-/** `data.reels.items` → strip cards; falls back to `SOCIAL_REELS_FALLBACK`. */
+/** `data.reels.items` → strip cards; falls back to `INSTAGRAM_REELS_STATIC_FALLBACK`. */
 export function reelsFromHomepage(
   hp: HomepagePayload | null | undefined,
 ): SocialClip[] {
-  return socialClipsFromLinks(hp?.reels?.items, "instagram", SOCIAL_REELS_FALLBACK);
+  return socialClipsFromLinks(
+    hp?.reels?.items,
+    "instagram",
+    INSTAGRAM_REELS_STATIC_FALLBACK,
+  );
 }
 
-/** `data.youtube.items` → strip cards; same fallback MP4s when empty. */
+/** `data.youtube.items` → strip cards; falls back to `YOUTUBE_SHORTS_STATIC_FALLBACK`. */
 export function youtubeFromHomepage(
   hp: HomepagePayload | null | undefined,
 ): SocialClip[] {
-  return socialClipsFromLinks(hp?.youtube?.items, "youtube", SOCIAL_REELS_FALLBACK);
+  return socialClipsFromLinks(
+    hp?.youtube?.items,
+    "youtube",
+    YOUTUBE_SHORTS_STATIC_FALLBACK,
+  );
 }
 
 /** `data.arrivals.items` → carousel rows; falls back to `LATEST_ARRIVALS`. */

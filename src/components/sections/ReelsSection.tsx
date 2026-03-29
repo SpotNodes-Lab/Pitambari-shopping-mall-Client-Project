@@ -2,9 +2,9 @@ import { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { Instagram, Youtube, X } from "lucide-react";
-import { SOCIAL_REELS_FALLBACK } from "@/constants/index";
 import type { SocialClip } from "@/services/cmsApi";
 import {
+  buildInstagramEmbedSrc,
   buildYoutubeIframeSrc,
   getInstagramEmbedUrl,
   isDirectHttpVideoUrl,
@@ -247,11 +247,10 @@ function ReelCard({
     !isMp4 && hostedVideo.length > 0 && isDirectHttpVideoUrl(hostedVideo);
   const ytIframeSrc =
     !isMp4 && !useHostedVideo ? buildYoutubeIframeSrc(url, { autoplay: false }) : null;
-  const igPermalink = !isMp4 && !useHostedVideo && !ytIframeSrc ? getInstagramEmbedUrl(url) : null;
-  const instagramNativeVideoUrl =
-    variant === "instagram" && igPermalink
-      ? SOCIAL_REELS_FALLBACK[index % SOCIAL_REELS_FALLBACK.length]?.url
-      : undefined;
+  const igPermalink =
+    variant === "instagram" && !isMp4 && !useHostedVideo && !ytIframeSrc
+      ? getInstagramEmbedUrl(url)
+      : null;
 
   const staggerClass =
     staggerLayout && index % 2 !== 0 ? "staggered-down" : "";
@@ -278,21 +277,9 @@ function ReelCard({
         staggerClass={staggerClass}
         compact={compact}
         autoplayOnIntersect={autoplayOnIntersect}
-        openOriginalUrl={igPermalink ? url : undefined}
-      />
-    );
-  }
-
-  if (instagramNativeVideoUrl) {
-    return (
-      <VideoReelCard
-        reel={reel}
-        videoUrl={instagramNativeVideoUrl}
-        index={index}
-        staggerClass={staggerClass}
-        compact={compact}
-        autoplayOnIntersect={autoplayOnIntersect}
-        openOriginalUrl={url}
+        openOriginalUrl={
+          getInstagramEmbedUrl(url) ? url : undefined
+        }
       />
     );
   }
@@ -300,6 +287,19 @@ function ReelCard({
   if (ytIframeSrc) {
     return (
       <YoutubeReelCard
+        reel={reel}
+        pageUrl={url}
+        index={index}
+        staggerClass={staggerClass}
+        compact={compact}
+        autoplayOnIntersect={autoplayOnIntersect}
+      />
+    );
+  }
+
+  if (igPermalink) {
+    return (
+      <InstagramReelCard
         reel={reel}
         pageUrl={url}
         index={index}
@@ -333,6 +333,72 @@ function ReelCard({
             <Instagram size={compact ? 36 : 44} strokeWidth={1.25} />
           )}
         </ExternalClipLink>
+        <Overlay>
+          <ReelTitle>{reel.title}</ReelTitle>
+        </Overlay>
+      </Card>
+    </CardWrapper>
+  );
+}
+
+/** Instagram reel/post permalinks: Meta embed iframe (best-effort autoplay in view). */
+function InstagramReelCard({
+  reel,
+  pageUrl,
+  index,
+  staggerClass,
+  compact,
+  autoplayOnIntersect,
+}: {
+  reel: SocialClip;
+  pageUrl: string;
+  index: number;
+  staggerClass: string;
+  compact: boolean;
+  autoplayOnIntersect: boolean;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(!autoplayOnIntersect);
+
+  useEffect(() => {
+    if (!autoplayOnIntersect) return;
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+      },
+      { threshold: 0.35, rootMargin: "0px 0px -8% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [autoplayOnIntersect]);
+
+  const src =
+    buildInstagramEmbedSrc(pageUrl, {
+      autoplay: autoplayOnIntersect ? inView : false,
+    }) ?? "";
+
+  return (
+    <CardWrapper
+      ref={containerRef}
+      className={staggerClass}
+      $compact={compact}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.7, delay: index * 0.15 }}
+    >
+      <Card $compact={compact}>
+        {src ? (
+          <EmbedIframe
+            key={autoplayOnIntersect ? `${src}-in-${inView}` : src}
+            src={src}
+            title={reel.title}
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          />
+        ) : null}
         <Overlay>
           <ReelTitle>{reel.title}</ReelTitle>
         </Overlay>

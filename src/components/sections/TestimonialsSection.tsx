@@ -7,8 +7,18 @@ import {
   AddReviewModal,
   type ReviewFormValues,
 } from "@/components/shared/AddReviewModal";
+import { submitPatronReviewToSheet } from "@/lib/patronReviewSheet";
 
-const USER_REVIEWS_STORAGE_KEY = "pitambari-patrons-reviews";
+/** Production reviews Web App; override with `VITE_REVIEW_FORM_URL` if you redeploy. */
+const DEFAULT_REVIEW_FORM_WEB_APP_URL =
+  "https://script.google.com/macros/s/AKfycbzKteZDnu3TMYQXvR0J_TLO-4m4tinogeO_9-r8sAKE-CW8l7DFovhMpAjLU65_RJU1/exec";
+
+const REVIEW_FORM_ENDPOINT =
+  import.meta.env.VITE_REVIEW_FORM_URL?.trim() ||
+  DEFAULT_REVIEW_FORM_WEB_APP_URL;
+
+/** Removed feature: client-side review list. Clear any legacy data from older builds. */
+const LEGACY_USER_REVIEWS_STORAGE_KEY = "pitambari-patrons-reviews";
 
 export interface Testimonial {
   id: number;
@@ -17,27 +27,6 @@ export interface Testimonial {
   quote: string;
   /** 1–5; defaults to 5 in the UI when omitted (e.g. static copy). */
   rating?: number;
-}
-
-function loadUserReviews(): Testimonial[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(USER_REVIEWS_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (item): item is Testimonial =>
-        !!item &&
-        typeof item === "object" &&
-        typeof (item as Testimonial).id === "number" &&
-        typeof (item as Testimonial).name === "string" &&
-        typeof (item as Testimonial).title === "string" &&
-        typeof (item as Testimonial).quote === "string"
-    );
-  } catch {
-    return [];
-  }
 }
 
 // Supplying some fallback premium data if backend doesn't provide it
@@ -66,42 +55,36 @@ const fallbackData: Testimonial[] = [
 ];
 
 export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
-  const baseTestimonials = useMemo(
+  /** Cards reflect CMS/homepage API or fallback only — form posts go to the Sheet, not here. */
+  const testimonials = useMemo(
     () => (data && data.length > 0 ? data : fallbackData),
     [data]
-  );
-  const [userReviews, setUserReviews] = useState<Testimonial[]>(() =>
-    loadUserReviews()
   );
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
   useEffect(() => {
     try {
-      localStorage.setItem(
-        USER_REVIEWS_STORAGE_KEY,
-        JSON.stringify(userReviews)
-      );
+      localStorage.removeItem(LEGACY_USER_REVIEWS_STORAGE_KEY);
     } catch {
-      /* ignore quota / private mode */
+      /* ignore */
     }
-  }, [userReviews]);
+  }, []);
 
-  const testimonials = useMemo(
-    () => [...userReviews, ...baseTestimonials],
-    [userReviews, baseTestimonials]
-  );
-
-  function handleAddReview(values: ReviewFormValues) {
-    setUserReviews((prev) => [
+  async function handleAddReview(values: ReviewFormValues) {
+    console.log(
+      "[Pitambari TestimonialsSection] handleAddReview — Google Sheet only (no grid update)",
       {
-        id: Date.now(),
-        name: values.name.trim(),
-        title: values.title.trim(),
-        quote: values.quote.trim(),
-        rating: values.rating,
-      },
-      ...prev,
-    ]);
+        reviewFormUrlSource: import.meta.env.VITE_REVIEW_FORM_URL?.trim()
+          ? "VITE_REVIEW_FORM_URL"
+          : "DEFAULT_REVIEW_FORM_WEB_APP_URL",
+      }
+    );
+
+    await submitPatronReviewToSheet(REVIEW_FORM_ENDPOINT, values);
+
+    console.log(
+      "[Pitambari TestimonialsSection] done; published quotes still come from admin/CMS only."
+    );
   }
 
   return (

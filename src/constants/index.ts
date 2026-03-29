@@ -1,5 +1,10 @@
 import pitambariBusinessThumb from "@/assets/PitambariJweles/Pitambari Image.png";
 import virasatBusinessThumb from "@/assets/virasat/Virasat Image.png";
+import reel1Mp4 from "@/assets/reels/reel1.mp4";
+import reel2Mp4 from "@/assets/reels/reel2.mp4";
+import reel3Mp4 from "@/assets/reels/reel3.mp4";
+import reel4Mp4 from "@/assets/reels/reel4.mp4";
+import reel5Mp4 from "@/assets/reels/reel5.mp4";
 
 /** Curated grid on homepage when CMS `categories.items` is empty or unavailable. */
 export const CURATED_CATEGORIES_FALLBACK = [
@@ -47,27 +52,31 @@ export const CURATED_CATEGORIES_FALLBACK = [
   },
 ] as const;
 
-/** Instagram + YouTube homepage strips when CMS `reels` / `youtube` items are empty (direct MP4s, same as legacy UI). */
-export const SOCIAL_REELS_FALLBACK = [
+/** Instagram reel strip when CMS `reels.items` is empty or invalid (bundled vertical MP4s). */
+export const INSTAGRAM_REELS_STATIC_FALLBACK = [
+  { id: "local-reel-1", title: "Reel 1", url: reel1Mp4 },
+  { id: "local-reel-2", title: "Reel 2", url: reel2Mp4 },
+  { id: "local-reel-3", title: "Reel 3", url: reel3Mp4 },
+  { id: "local-reel-4", title: "Reel 4", url: reel4Mp4 },
+  { id: "local-reel-5", title: "Reel 5", url: reel5Mp4 },
+] as const;
+
+/** YouTube Shorts strip when CMS `youtube.items` is empty or invalid. */
+export const YOUTUBE_SHORTS_STATIC_FALLBACK = [
   {
-    id: "1",
-    title: "Bridal Elegance",
-    url: "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16.mp4",
+    id: "yt-m7fwvj2zq8s",
+    title: "YouTube Short 1",
+    url: "https://www.youtube.com/shorts/m7FwVj2zQ8s?si=A1ab2tkYtw-sFIGk",
   },
   {
-    id: "2",
-    title: "Festive Glamour",
-    url: "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16-1.mp4",
+    id: "yt-kmj-gtnfzg",
+    title: "YouTube Short 2",
+    url: "https://www.youtube.com/shorts/Kmj-gtN_Fzg?si=HgcH-qEJ6GNrmPYY",
   },
   {
-    id: "3",
-    title: "Menswear Edit",
-    url: "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16-3.mp4",
-  },
-  {
-    id: "4",
-    title: "Signature Silks",
-    url: "https://shreedholisatiretailmall.com/wp-content/uploads/2025/10/WhatsApp-Video-2025-08-28-at-16-2.mp4",
+    id: "yt-gsjkgcejmym",
+    title: "YouTube Short 3",
+    url: "https://www.youtube.com/shorts/gSJkGcEJMyM?si=zm5ezETD2mTgwQ4w",
   },
 ] as const;
 

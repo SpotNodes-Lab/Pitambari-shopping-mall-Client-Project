@@ -83,7 +83,8 @@ const Title = styled.h1`
   color: #222222;
   font-size: 3rem;
   margin-bottom: 1rem;
-  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 
   .serif-italic {
     font-family: "Playfair Display", "Baskerville", serif;
