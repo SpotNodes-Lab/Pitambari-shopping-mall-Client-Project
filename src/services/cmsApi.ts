@@ -8,6 +8,7 @@ import {
   YOUTUBE_SHORTS_STATIC_FALLBACK,
   TESTIMONIALS,
 } from "@/constants";
+import type { ReviewFormValues } from "@/components/shared/AddReviewModal";
 import type { Testimonial } from "@/components/sections/TestimonialsSection";
 import type { AnalyticsStat } from "@/components/sections/CustomerAnalyticsSection";
 import { DEFAULT_ANALYTICS_STATS } from "@/components/sections/CustomerAnalyticsSection";
@@ -413,6 +414,80 @@ export async function fetchHomepage(): Promise<HomepagePayload | null> {
 /** Matches admin default caption (`USER_WEB_API.md` / Pitambari-backend `QRCodeItem`). */
 export const DEFAULT_REWARDS_QR_CAPTION =
   "Point your camera to scan and open rewards.";
+
+function axiosErrorMessage(e: unknown, fallback: string): string {
+  const ax = e as { response?: { data?: { message?: string } } };
+  const m = ax.response?.data?.message;
+  if (typeof m === "string" && m.trim()) return m.trim();
+  return e instanceof Error ? e.message : fallback;
+}
+
+export type PublicPatronReviewApiItem = {
+  id: string;
+  name: string;
+  title: string;
+  quote: string;
+  rating: number;
+  createdAt?: string;
+};
+
+/**
+ * Approved patron reviews (`GET /api/v1/reviews`). Empty array on failure.
+ */
+export async function fetchPublicPatronReviews(): Promise<Testimonial[]> {
+  try {
+    const res = (await apiClient.get("v1/reviews")) as {
+      success?: boolean;
+      data?: PublicPatronReviewApiItem[];
+    };
+    const items = res?.data ?? [];
+    return items.map((r, i) => ({
+      id: r.id || `review-${i}`,
+      name: r.name,
+      title: r.title || "",
+      quote: r.quote,
+      rating: r.rating,
+    }));
+  } catch (e) {
+    console.warn("[cms] GET /reviews failed", e);
+    return [];
+  }
+}
+
+export async function submitContactForm(body: {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+}): Promise<void> {
+  try {
+    const res = (await apiClient.post("v1/contact", body)) as {
+      success?: boolean;
+      message?: string;
+    };
+    if (res && res.success === false) {
+      throw new Error(res.message || "Could not send your message.");
+    }
+  } catch (e: unknown) {
+    throw new Error(axiosErrorMessage(e, "Could not send your message."));
+  }
+}
+
+export async function submitPatronReview(values: ReviewFormValues): Promise<void> {
+  try {
+    const res = (await apiClient.post("v1/reviews", {
+      name: values.name.trim(),
+      title: values.title.trim(),
+      quote: values.quote.trim(),
+      rating: values.rating,
+    })) as { success?: boolean; message?: string };
+    if (res && res.success === false) {
+      throw new Error(res.message || "Could not submit your review.");
+    }
+  } catch (e: unknown) {
+    throw new Error(axiosErrorMessage(e, "Could not submit your review."));
+  }
+}
 
 /** One row from `GET /api/v1/qr-codes/public`. */
 export type PublicQrCodeItem = {

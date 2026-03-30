@@ -6,6 +6,7 @@ import { MapPin } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { useMemo, useState } from "react"
+import { submitContactForm } from "@/services/cmsApi"
 
 const formSchema = z.object({
   name: z.string().min(2, "Please enter your name."),
@@ -22,16 +23,6 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-const LOG_PREFIX = "[Pitambari ContactForm]"
-
-/** Production Web App URL; override with `VITE_CONTACT_FORM_URL` for another deployment. */
-const DEFAULT_CONTACT_FORM_WEB_APP_URL =
-  "https://script.google.com/macros/s/AKfycbyjFWr4uK7aNF8Ws4oVTTyyuzW7WExIK_8LtwiQoc2r_0tv-9Hsy5Cs8kj7f51FVIU4/exec"
-
-const CONTACT_FORM_ENDPOINT =
-  import.meta.env.VITE_CONTACT_FORM_URL?.trim() ||
-  DEFAULT_CONTACT_FORM_WEB_APP_URL
-
 const PITAMBRI_MAP_URL = "https://maps.app.goo.gl/inFK5RkQSC2emtky7"
 const PITAMBRI_MAP_EMBED_URL =
   "https://www.google.com/maps?output=embed&q=LAL%20BAZAR%2C%20PITAMBARI%20ROAD%2C%20BETTIAH%2C%20BIHAR%2C%20845438%2C%20WEST%20CHAMPARAN&z=17"
@@ -43,6 +34,7 @@ export function ContactFormSection() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -59,105 +51,29 @@ export function ContactFormSection() {
 
   async function onSubmit(values: FormValues) {
     setSubmitError(null)
-    console.group(`${LOG_PREFIX} submit`)
-
-    const usingEnvUrl = Boolean(import.meta.env.VITE_CONTACT_FORM_URL?.trim())
-    console.log(`${LOG_PREFIX} config`, {
-      endpoint: CONTACT_FORM_ENDPOINT,
-      endpointSource: usingEnvUrl ? "VITE_CONTACT_FORM_URL" : "default (built-in)",
-      mode: import.meta.env.MODE,
-      dev: import.meta.env.DEV,
-    })
-
-    console.log(`${LOG_PREFIX} validated payload (raw)`, {
-      name: values.name,
-      email: values.email,
-      phone: values.phone,
-      messageLength: values.message.length,
-      messagePreview: `${values.message.slice(0, 80)}${values.message.length > 80 ? "…" : ""}`,
-    })
-
-    const body = new URLSearchParams()
-    body.set("name", values.name)
-    body.set("email", values.email)
-    body.set("phone", values.phone)
-    body.set("message", values.message)
-
-    const bodyString = body.toString()
-    console.log(`${LOG_PREFIX} request`, {
-      method: "POST",
-      contentType: "application/x-www-form-urlencoded",
-      bodyKeys: ["name", "email", "phone", "message"],
-      bodyByteLength: new TextEncoder().encode(bodyString).length,
-      bodyForDebug: bodyString,
-    })
-
-    const requestInit: RequestInit = {
-      method: "POST",
-      mode: "cors",
-      redirect: "follow",
-      headers: {
-        Accept: "application/json, text/plain, */*",
-      },
-      body,
-    }
-    console.log(`${LOG_PREFIX} fetch init`, { ...requestInit, body: "[URLSearchParams]" })
-
     try {
-      const t0 = performance.now()
-      const res = await fetch(CONTACT_FORM_ENDPOINT, requestInit)
-      const t1 = performance.now()
-
-      console.log(`${LOG_PREFIX} response meta`, {
-        ok: res.ok,
-        status: res.status,
-        statusText: res.statusText,
-        type: res.type,
-        url: res.url,
-        redirected: res.redirected,
-        durationMs: Math.round(t1 - t0),
+      await submitContactForm({
+        name: values.name.trim(),
+        email: values.email.trim(),
+        phone: values.phone.trim(),
+        message: values.message.trim(),
       })
-
-      const responseHeaders: Record<string, string> = {}
-      res.headers.forEach((v, k) => {
-        responseHeaders[k] = v
+      reset({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
       })
-      console.log(`${LOG_PREFIX} response headers`, responseHeaders)
-
-      const rawText = await res.text()
-      console.log(`${LOG_PREFIX} response body (raw text)`, rawText)
-
-      let data: { ok?: boolean; error?: string } = {}
-      try {
-        data = rawText ? (JSON.parse(rawText) as { ok?: boolean; error?: string }) : {}
-        console.log(`${LOG_PREFIX} response body (parsed JSON)`, data)
-      } catch (parseErr) {
-        console.warn(`${LOG_PREFIX} JSON parse failed`, parseErr)
-      }
-
-      if (!res.ok || data.ok === false) {
-        const errMsg =
-          data.error || `${res.status} ${res.statusText}`.trim() || "Could not send your message."
-        console.error(`${LOG_PREFIX} server indicated failure`, { errMsg, data })
-        throw new globalThis.Error(errMsg)
-      }
-
-      console.log(`${LOG_PREFIX} success — sheet append should be done`)
       setSubmitted(true)
-    } catch (e: unknown) {
-      console.error(`${LOG_PREFIX} submit error`, {
-        name: e instanceof globalThis.Error ? e.name : typeof e,
-        message: e instanceof globalThis.Error ? e.message : String(e),
-        stack: e instanceof globalThis.Error ? e.stack : undefined,
-      })
-      console.warn(
-        `${LOG_PREFIX} hint: Google Apps Script Web Apps sometimes block cross-origin fetch (CORS). If you see a network/CORS error, confirm deployment “Who has access” includes your users and try the request from the same browser with DevTools → Network open.`
-      )
-      const message =
-        e instanceof globalThis.Error ? e.message : "Could not send your message."
+    } catch (err: unknown) {
+      let message = "Could not send your message."
+      if (err && typeof err === "object" && "message" in err) {
+        const m = (err as { message?: unknown }).message
+        if (typeof m === "string" && m.trim()) {
+          message = m
+        }
+      }
       setSubmitError(message)
-    } finally {
-      console.groupEnd()
     }
   }
 
@@ -177,6 +93,14 @@ export function ContactFormSection() {
                 <SuccessText>
                   Thanks! We will reach out soon to help with your enquiry.
                 </SuccessText>
+                <Button
+                  type="button"
+                  variant="outline"
+                  style={{ marginTop: "1rem" }}
+                  onClick={() => setSubmitted(false)}
+                >
+                  Send another message
+                </Button>
               </Success>
             ) : (
               <Form onSubmit={handleSubmit(onSubmit)}>
@@ -511,4 +435,3 @@ const MapLink = styled.a`
     color: var(--color-primary-container);
   }
 `
-

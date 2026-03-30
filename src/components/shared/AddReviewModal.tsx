@@ -81,22 +81,14 @@ export function AddReviewModal({
 
   async function onValidSubmit(values: ReviewFormValues) {
     setSubmitError(null)
-    console.log("[Pitambari AddReviewModal] submit started", {
-      rating: values.rating,
-      quoteLength: values.quote.length,
-      name: values.name,
-      title: values.title,
-    })
     try {
       await Promise.resolve(onSubmitReview(values))
-      console.log("[Pitambari AddReviewModal] onSubmitReview completed, closing modal")
       onClose()
     } catch (e: unknown) {
       const message =
         e instanceof globalThis.Error
           ? e.message
           : "Could not submit your review. Please try again."
-      console.error("[Pitambari AddReviewModal] onSubmitReview failed", e)
       setSubmitError(message)
     }
   }

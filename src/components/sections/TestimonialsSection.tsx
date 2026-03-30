@@ -7,21 +7,14 @@ import {
   AddReviewModal,
   type ReviewFormValues,
 } from "@/components/shared/AddReviewModal";
-import { submitPatronReviewToSheet } from "@/lib/patronReviewSheet";
-
-/** Production reviews Web App; override with `VITE_REVIEW_FORM_URL` if you redeploy. */
-const DEFAULT_REVIEW_FORM_WEB_APP_URL =
-  "https://script.google.com/macros/s/AKfycbzKteZDnu3TMYQXvR0J_TLO-4m4tinogeO_9-r8sAKE-CW8l7DFovhMpAjLU65_RJU1/exec";
-
-const REVIEW_FORM_ENDPOINT =
-  import.meta.env.VITE_REVIEW_FORM_URL?.trim() ||
-  DEFAULT_REVIEW_FORM_WEB_APP_URL;
+import { submitPatronReview } from "@/services/cmsApi";
+import { useDataStore } from "@/store/dataStore";
 
 /** Removed feature: client-side review list. Clear any legacy data from older builds. */
 const LEGACY_USER_REVIEWS_STORAGE_KEY = "pitambari-patrons-reviews";
 
 export interface Testimonial {
-  id: number;
+  id: number | string;
   name: string;
   title: string;
   quote: string;
@@ -55,7 +48,9 @@ const fallbackData: Testimonial[] = [
 ];
 
 export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
-  /** Cards reflect CMS/homepage API or fallback only — form posts go to the Sheet, not here. */
+  const patronReviewsLoading = useDataStore((s) => s.patronReviewsLoading);
+  const patronReviewsError = useDataStore((s) => s.patronReviewsError);
+
   const testimonials = useMemo(
     () => (data && data.length > 0 ? data : fallbackData),
     [data]
@@ -71,20 +66,8 @@ export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
   }, []);
 
   async function handleAddReview(values: ReviewFormValues) {
-    console.log(
-      "[Pitambari TestimonialsSection] handleAddReview — Google Sheet only (no grid update)",
-      {
-        reviewFormUrlSource: import.meta.env.VITE_REVIEW_FORM_URL?.trim()
-          ? "VITE_REVIEW_FORM_URL"
-          : "DEFAULT_REVIEW_FORM_WEB_APP_URL",
-      }
-    );
-
-    await submitPatronReviewToSheet(REVIEW_FORM_ENDPOINT, values);
-
-    console.log(
-      "[Pitambari TestimonialsSection] done; published quotes still come from admin/CMS only."
-    );
+    await submitPatronReview(values);
+    void useDataStore.getState().refreshPatronReviews();
   }
 
   return (
@@ -116,10 +99,17 @@ export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
           </CtaWrap>
         </Header>
 
+        {patronReviewsLoading ? (
+          <ReviewsStatus role="status">Loading reviews…</ReviewsStatus>
+        ) : null}
+        {patronReviewsError ? (
+          <ReviewsError role="alert">{patronReviewsError}</ReviewsError>
+        ) : null}
+
         <Grid>
           {testimonials.slice(0, 3).map((t, index) => (
             <Card
-              key={t.id}
+              key={String(t.id)}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
@@ -166,6 +156,22 @@ export function TestimonialsSection({ data }: { data?: Testimonial[] }) {
   );
 }
 // --- Styled Components ---
+
+const ReviewsStatus = styled.p`
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: #666666;
+  margin-bottom: 0.75rem;
+`;
+
+const ReviewsError = styled.p`
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: #b91c1c;
+  margin-bottom: 0.75rem;
+`;
 
 const Section = styled.section`
   padding-top: var(--section-y);
