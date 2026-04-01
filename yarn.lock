@@ -904,9 +904,9 @@ embla-carousel-reactive-utils@8.6.0:
   resolved "https://registry.npmjs.org/embla-carousel-reactive-utils/-/embla-carousel-reactive-utils-8.6.0.tgz"
   integrity sha512-fMVUDUEx0/uIEDM0Mz3dHznDhfX+znCCDCeIophYb1QGVM7YThSWX+wz11zlYwWFOr74b4QLGg0hrGPJeG2s4A==
 
-embla-carousel@8.6.0:
+embla-carousel@8.6.0, embla-carousel@^8.6.0:
   version "8.6.0"
-  resolved "https://registry.npmjs.org/embla-carousel/-/embla-carousel-8.6.0.tgz"
+  resolved "https://registry.yarnpkg.com/embla-carousel/-/embla-carousel-8.6.0.tgz#abcedff2bff36992ea8ac27cd30080ca5b6a3f58"
   integrity sha512-SjWyZBHJPbqxHOzckOfo8lHisEaJWmwd23XppYFYVh10bU66/Pn5tkVkbkCMZVdbUE5eTCI2nD8OyIP4Z+uwkA==
 
 encodeurl@^2.0.0:
